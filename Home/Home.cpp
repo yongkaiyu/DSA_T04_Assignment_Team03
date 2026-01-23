@@ -2,10 +2,26 @@
 //
 
 #include <iostream>
+#include <string>
+#include "Games.h"
+#include "CSVReader.h" // Include your new utility
+#include "Admin.h"
+#include "UserDictionary.h"
+#include "User.h"
+#include "Member.h"
+#include "Booking.h"
 
-int main()
-{
-    std::cout << "Hello World!";
+using namespace std;
+
+
+int main() {
+    GameDictionary lib;
+
+	loadGamesFromCSV("games.csv", lib); // Load data from CSV into the dictionary
+
+    //std::cout << "Welcome to NPTTGC Management System" << std::endl;
+    
+    return 0;
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu

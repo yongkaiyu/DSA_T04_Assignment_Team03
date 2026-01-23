@@ -5,7 +5,7 @@ using namespace std;
 
 class UserDictionary;
 
-class Admin : User {
+class Admin : public User {
 public:
 	Admin(string UserID, string userName);
 

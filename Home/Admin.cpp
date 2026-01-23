@@ -1,5 +1,7 @@
 #include "User.h"
 #include "Admin.h"
+#include "Member.h"
+#include "UserDictionary.h"
 
 Admin::Admin(string userID, string userName)
     : User(userID, userName, Role::Admin) {
