@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include "User.h"
+using namespace std;
 
 class UserDictionary {
 private:
