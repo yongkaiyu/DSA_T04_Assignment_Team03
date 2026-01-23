@@ -13,11 +13,74 @@
 
 using namespace std;
 
+void adminMenu() {
+    int choice = -1;
+
+    while (choice != 0) {
+        cout << "\n=== ADMIN MENU ===\n";
+        cout << "1) Add a new board game\n";
+        cout << "2) Remove a board game\n";
+        cout << "3) Add a new member\n";
+        cout << "4) Display borrowed/returned summary\n";
+        cout << "0) Exit\n";
+        cout << "Choose: ";
+        cin >> choice;
+
+        if (choice == 1) {
+            // add new board game (look at game)
+        }
+        else if (choice == 2) {
+            // remove a board game (look at game)
+        }
+        else if (choice == 3) {
+            // add new member
+            cout << "Enter username: ";
+            string userName;
+            cin >> userName;
+
+
+        }
+        else if (choice == 4) {
+            // display borrowed/returned summary (look at booking)
+        }
+        else {
+            
+        }
+    }
+}
+
+void memberMenu() {
+    int choice = -1;
+
+    while (choice != 0) {
+        cout << "\n=== MEMBER MENU ===\n";
+        cout << "1) Borrow a board game\n";
+        cout << "2) Return a board game\n";
+        cout << "3) Display summary of games borrowed/returned\n";
+        cout << "0) Exit\n";
+        cout << "Choose: ";
+        cin >> choice;
+
+        if (choice == 1) {
+            // borrow game (booking)
+        }
+        else if (choice == 2) {
+            // return game (booking)
+        }
+        else if (choice == 3) {
+            // display summary of games borrowed/returned (booking and users maybe)
+        }
+        else {
+            
+        }
+    }
+}
 
 int main() {
     GameDictionary lib;
+    adminMenu();
 
-	loadGamesFromCSV("games.csv", lib); // Load data from CSV into the dictionary
+	//loadGamesFromCSV("games.csv", lib); // Load data from CSV into the dictionary
 
     //std::cout << "Welcome to NPTTGC Management System" << std::endl;
     
