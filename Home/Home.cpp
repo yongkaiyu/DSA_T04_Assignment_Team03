@@ -13,7 +13,7 @@
 
 using namespace std;
 
-void adminMenu() {
+void adminMenu(Booking* bookingSystem) {
     int choice = -1;
 
     while (choice != 0) {
@@ -42,6 +42,7 @@ void adminMenu() {
         }
         else if (choice == 4) {
             // display borrowed/returned summary (look at booking)
+			bookingSystem->printAdminSummary();
         }
         else {
             
@@ -49,7 +50,7 @@ void adminMenu() {
     }
 }
 
-void memberMenu() {
+void memberMenu(Booking* bookingSystem, string userID) {
     int choice = -1;
 
     while (choice != 0) {
@@ -63,12 +64,23 @@ void memberMenu() {
 
         if (choice == 1) {
             // borrow game (booking)
+			string gameID;
+			cout << "Enter the game ID to borrow: ";
+			cin >> gameID;
+			bookingSystem->borrowGame(userID,gameID);
+			cout << "Game borrowed successfully.\n";
         }
         else if (choice == 2) {
             // return game (booking)
+			string bookingID;
+			cout << "Enter the booking ID to return: ";
+			cin >> bookingID;
+			bookingSystem->returnGame(bookingID);
+			cout << "Game returned successfully.\n";
         }
         else if (choice == 3) {
             // display summary of games borrowed/returned (booking and users maybe)
+			bookingSystem->printMemberSummary(userID);
         }
         else {
             
@@ -78,7 +90,9 @@ void memberMenu() {
 
 int main() {
     GameDictionary lib;
-    adminMenu();
+	Booking* bookingSystem = new Booking;
+
+    adminMenu(bookingSystem);
 
 	//loadGamesFromCSV("games.csv", lib); // Load data from CSV into the dictionary
 
