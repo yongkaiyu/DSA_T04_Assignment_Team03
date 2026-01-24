@@ -1,7 +1,7 @@
 #pragma once
 #include "User.h"
 
-class Member :User {
+class Member :public User {
 private:
 	int totalBorrowed;
 	int totalReturned;
