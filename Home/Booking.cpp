@@ -3,6 +3,7 @@
 Booking::Booking() {
 
 	size = 0;
+	nextBookingNumber = 1;
 	for (int i = 0; i < MAX_SIZE; i++)
 	{
 		items[i] = nullptr;
@@ -46,8 +47,28 @@ int Booking::hash(KeyType key)
 
 }
 
-bool Booking::borrowGame(KeyType newKey, ItemType newItem)
+string Booking::generateAutoID()
 {
+	char id[5];
+	id[0] = 'B';
+	id[1] = char('0' + (nextBookingNumber / 100) % 10);
+	id[2] = char('0' + (nextBookingNumber / 10) % 10);
+	id[3] = char('0' + (nextBookingNumber % 10));
+	id[4] = char('\0');
+	nextBookingNumber++;
+	return string(id);
+}
+
+bool Booking::borrowGame(string& userID, string& gameID)
+{
+	BookingData newItem;
+
+	newItem.bookingID = generateAutoID();
+	newItem.userID = userID;
+	newItem.gameID = gameID;
+	newItem.bookingIsReturned = false;
+	KeyType newKey = newItem.bookingID;
+
 	int index = hash(newKey);
 
 	if (items[index] == nullptr)
@@ -83,13 +104,13 @@ bool Booking::borrowGame(KeyType newKey, ItemType newItem)
 	return true;
 }
 
-bool Booking::returnGame(KeyType key)
+bool Booking::returnGame(string& bookingID)
 {
-	int index = hash(key);
+	int index = hash(bookingID);
 	Node* current = items[index];
 	while (current != nullptr)
 	{
-		if (current->key == key)
+		if (current->key == bookingID)
 		{
 			if (current->item.bookingIsReturned) {
 				return false;
