@@ -43,6 +43,26 @@ void GameDictionary::addOrUpdateGame(Game g) {
     }
 }
 
+// Returns the number of copies left, or -1 if the game was not found
+int GameDictionary::removeGame(std::string name) {
+    Game* found = searchByName(name); // Use the search logic we built
+
+    if (found) {
+        if (found->gameTotalCopies > 1) {
+            // Decrement both total and available counts
+            found->gameTotalCopies--;
+            found->gameAvailableCopies--;
+            return found->gameTotalCopies;
+        }
+        else {
+            // Only one copy was left, so we remove the entry entirely
+            deleteGameCompletely(name);
+            return 0;
+        }
+    }
+    return -1; // Game not found
+}
+
 GameDictionary::~GameDictionary() {
     for (int i = 0; i < TABLE_SIZE; i++) {
         Node* current = table[i];
