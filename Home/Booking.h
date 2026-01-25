@@ -7,7 +7,6 @@ using namespace std;
 
 const int MAX_SIZE = 101;
 typedef string KeyType; // bookingID
-typedef BookingData ItemType; // booking data
 
 struct BookingData
 {
@@ -25,7 +24,7 @@ struct BookingData
 struct Node
 {
 	KeyType	 key;   // search key
-	ItemType item;	// data item
+	BookingData item;	// data item
 	Node* next;	// pointer pointing to next item with same search key
 };
 
@@ -65,7 +64,7 @@ public:
 	// pre : key must exist in Booking
 	// post: none
 	// return the item with the specified key from Booking
-	ItemType get(KeyType key);
+	// BookingData get(KeyType key);
 
 	// check if the Booking is empty
 	// pre : none
