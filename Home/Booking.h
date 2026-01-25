@@ -35,6 +35,7 @@ private:
 
 	Node* items[MAX_SIZE];
 	int size;			// number of items in the Booking
+	int nextBookingNumber; // to generate unique booking IDs
 
 public:
 
@@ -46,17 +47,19 @@ public:
 
 	int hash(KeyType key);
 
+	string generateAutoID();
+
 	// add a new item with the specified key to the Booking
 	// pre : none
 	// post: new item is added to the Booking
 	// size of Booking is increased by 1
-	bool borrowGame(KeyType newKey, ItemType newItem);
+	bool borrowGame(string& userID, string& gameID);
 
 	// update an item with the specified key in the Booking
 	// pre : key must exist in the Booking
 	// post: item is updated in the Booking
 	// size of Booking is the same
-	bool returnGame(KeyType key);
+	bool returnGame(string& bookingID);
 
 	// get an item with the specified key in the Booking (retrieve)
 	// pre : key must exist in Booking
