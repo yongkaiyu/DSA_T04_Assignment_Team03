@@ -1,5 +1,4 @@
-#ifndef CSVREADER_H
-#define CSVREADER_H
+#pragma once
 
 #include <string>
 #include "Games.h"

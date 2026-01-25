@@ -124,7 +124,7 @@ bool Booking::returnGame(string& bookingID)
 	return false;
 }
 
-ItemType Booking::get(KeyType key)
+/* BookingData Booking::get(KeyType key)
 {
 	int index = hash(key);
 	Node* current = items[index];
@@ -138,7 +138,7 @@ ItemType Booking::get(KeyType key)
 	}
 
 	return "";
-}
+} */
 bool Booking::isEmpty()
 {
 	return size == 0;
@@ -162,7 +162,7 @@ void Booking::printAdminSummary()
 			while (current != nullptr)
 			{
 				total++;
-				cout << "Item: " << current->item << "\n---\n";
+				cout << "Item: " << current->item.bookingID << "\n---\n";
 				if (current->item.bookingIsReturned) {
 					returned++;
 				}
@@ -187,9 +187,9 @@ void Booking::printMemberSummary(string userID)
 			Node* current = items[i];
 			while (current != nullptr)
 			{
-				if (current->item.bookingUserID == userID) {
+				if (current->item.bookingID == userID) {
 					borrowed++;
-					cout << "Item: " << current->item << "\n---\n";
+					cout << "Item: " << current->item.bookingID << "\n---\n";
 					if (current->item.bookingIsReturned) {
 						returned++;
 					}
