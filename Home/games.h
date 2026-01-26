@@ -36,4 +36,6 @@ public:
     void addOrUpdateGame(Game g);
     Game* searchByName(std::string name);
     void displayAll();
+
+    bool removeGame(std::string name);
 };

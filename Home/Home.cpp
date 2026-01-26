@@ -13,7 +13,7 @@
 
 using namespace std;
 
-void adminMenu(Booking* bookingSystem) {
+void adminMenu(Admin admin, UserDictionary users, GameDictionary& lib, Booking* bookingSystem) {
     int choice = -1;
 
     while (choice != 0) {
@@ -28,17 +28,65 @@ void adminMenu(Booking* bookingSystem) {
 
         if (choice == 1) {
             // add new board game (look at game)
+            Game g;
+
+            // ask for the details to make a game
+            cout << "Enter game name: ";
+            cin.ignore();
+            getline(cin, g.gameName);
+
+            // minimum players required to play
+            cout << "Min players: ";
+            cin >> g.gameMinPlayer;
+
+            // maximum players required to play
+            cout << "Max players: ";
+            cin >> g.gameMaxPlayer;
+
+            // minimum play time for the game (1 hour = 60, etc)
+            cout << "Min play time: ";
+            cin >> g.gameMinPlayTime;
+
+            // maximum play time for the game (1 hour = 60, etc)
+            cout << "Max play time: ";
+            cin >> g.gameMaxPlayTime;
+
+            // year published for the game
+            cout << "Year published: ";
+            cin >> g.gameYearPublished;
+
+            // setting rating to 0 for now (for advanced)
+            g.gameAverageRating = 0.0f;
+
+            // checking if minplayer > maxplayer and minplaytime > maxplaytime
+            if (g.gameMinPlayer > g.gameMaxPlayer || g.gameMinPlayTime > g.gameMaxPlayTime) {
+                cout << "Invalid min/max values.\n";
+            }
+            else {
+                // add game to game dictionary
+                lib.addOrUpdateGame(g);
+                cout << "Game added successfully!\n";
+            }
         }
         else if (choice == 2) {
             // remove a board game (look at game)
+            // need remove game to be added first
         }
         else if (choice == 3) {
-            // add new member
+            // ask for username only (userid not required as its auto generated)
             cout << "Enter username: ";
             string userName;
             cin >> userName;
 
+            // add member
+            bool success = admin.addMember(users, userName);
 
+            if (success) {
+                cout << "Member created successfully!\n";
+            }
+            else {
+                cout << "Failed to create member";
+            }
         }
         else if (choice == 4) {
             // display borrowed/returned summary (look at booking)
@@ -92,7 +140,9 @@ int main() {
     GameDictionary lib;
 	Booking* bookingSystem = new Booking;
 
-    adminMenu(bookingSystem);
+    UserDictionary users;
+    Admin admin("A001", "Admin");
+    adminMenu(admin, users,lib, bookingSystem);
 
 	//loadGamesFromCSV("games.csv", lib); // Load data from CSV into the dictionary
 
