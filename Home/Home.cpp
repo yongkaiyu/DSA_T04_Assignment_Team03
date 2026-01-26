@@ -130,9 +130,6 @@ void memberMenu(Booking* bookingSystem, string userID) {
             // display summary of games borrowed/returned (booking and users maybe)
 			bookingSystem->printMemberSummary(userID);
         }
-        else {
-            
-        }
     }
 }
 
@@ -142,7 +139,30 @@ int main() {
 
     UserDictionary users;
     Admin admin("A001", "Admin");
-    adminMenu(admin, users,lib, bookingSystem);
+
+	int roleChoice = -1;
+	cout << "Select Role:\n1) Admin\n2) Member\nChoose: ";
+	cin >> roleChoice;
+    if (roleChoice == 1)
+    {
+        adminMenu(admin, users, lib, bookingSystem);
+    }
+    else if (roleChoice == 2)
+    {
+        string memberID;
+        cout << "Enter Member ID: ";
+        cin >> memberID;
+        if (users.contains(memberID)) {
+            memberMenu(bookingSystem, memberID);
+        }
+        else {
+            cout << "Member ID not found.\n";
+        }
+    }
+    else
+    {
+        cout << "Invalid role selection.\n";
+	}
 
 	//loadGamesFromCSV("games.csv", lib); // Load data from CSV into the dictionary
 
