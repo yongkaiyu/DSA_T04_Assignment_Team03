@@ -37,5 +37,5 @@ public:
     Game* searchByName(std::string name);
     void displayAll();
 
-    bool removeGame(std::string name);
+	bool removeGame(std::string name); //removes one copy of the game
 };
