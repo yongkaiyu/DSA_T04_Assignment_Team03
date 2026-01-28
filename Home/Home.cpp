@@ -160,7 +160,7 @@ int main() {
         }
     }
     else
-    {
+{
         cout << "Invalid role selection.\n";
 	}
 

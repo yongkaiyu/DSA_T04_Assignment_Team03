@@ -45,22 +45,35 @@ void GameDictionary::addOrUpdateGame(Game g) {
 
 // Returns the number of copies left, or -1 if the game was not found
 int GameDictionary::removeGame(std::string name) {
-    Game* found = searchByName(name); // Use the search logic we built
+    int index = hashFunction(name);
+    Node* current = table[index];
+    Node* prev = nullptr;
 
-    if (found) {
-        if (found->gameTotalCopies > 1) {
-            // Decrement both total and available counts
-            found->gameTotalCopies--;
-            found->gameAvailableCopies--;
-            return found->gameTotalCopies;
+    while (current != nullptr) {
+        if (current->key == name) {
+            // Found the game
+            if (current->data.gameTotalCopies > 1) {
+                // More than one copy exists: just decrement counts
+                current->data.gameTotalCopies--;
+                current->data.gameAvailableCopies--;
+                return current->data.gameTotalCopies; // Return remaining count
+            }
+            else {
+                // Only one copy left: remove the entire node from the list
+                if (prev == nullptr) {
+                    table[index] = current->next;
+                }
+                else {
+                    prev->next = current->next;
+                }
+                delete current;
+                return 0; // Return 0 to indicate the game is completely gone
+            }
         }
-        else {
-            // Only one copy was left, so we remove the entry entirely
-            deleteGameCompletely(name);
-            return 0;
-        }
+        prev = current;
+        current = current->next;
     }
-    return -1; // Game not found
+    return -1; // Return -1 if the game was not found
 }
 
 GameDictionary::~GameDictionary() {
