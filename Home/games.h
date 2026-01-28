@@ -37,5 +37,5 @@ public:
     Game* searchByName(std::string name);
     void displayAll();
 
-	bool removeGame(std::string name); //removes one copy of the game from the dictionary or else delete 
+    int removeGame(std::string name); //removes one copy of the game from the dictionary or else delete 
 };
