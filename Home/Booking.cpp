@@ -1,0 +1,204 @@
+#include "Booking.h"
+
+Booking::Booking() {
+
+	size = 0;
+	nextBookingNumber = 1;
+	for (int i = 0; i < MAX_SIZE; i++)
+	{
+		items[i] = nullptr;
+	}
+}
+Booking::~Booking()
+{
+	for (int i = 0; i < MAX_SIZE; i++)
+	{
+		Node* current = items[i];
+
+		while (current != nullptr)
+		{
+			Node* temp = current;
+			current = current->next;
+			delete temp;
+		}
+
+		items[i] = nullptr;
+	}
+
+	size = 0;
+
+}
+
+int Booking::hash(KeyType key)
+{
+	if (key.empty())
+	{
+		return -1;
+	}
+
+	unsigned long h = 5381;
+
+	for (char c : key)
+	{
+		h = ((h << 5) + h) + c; // h * 33 + c
+	}
+
+	return int(h % MAX_SIZE);
+
+}
+
+string Booking::generateAutoID()
+{
+	char id[5];
+	id[0] = 'B';
+	id[1] = char('0' + (nextBookingNumber / 100) % 10);
+	id[2] = char('0' + (nextBookingNumber / 10) % 10);
+	id[3] = char('0' + (nextBookingNumber % 10));
+	id[4] = char('\0');
+	nextBookingNumber++;
+	return string(id);
+}
+
+bool Booking::borrowGame(string& userID, string& gameID)
+{
+	BookingData newItem;
+
+	newItem.bookingID = generateAutoID();
+	newItem.userID = userID;
+	newItem.gameID = gameID;
+	newItem.bookingIsReturned = false;
+	KeyType newKey = newItem.bookingID;
+
+	int index = hash(newKey);
+
+	if (items[index] == nullptr)
+	{
+		Node* newNode = new Node;
+		items[index] = newNode;
+	}
+	else
+	{
+		cout << "Collision at " << index << " - " << newKey << " and " << items[index]->key;
+		cout << endl;
+		Node* current = items[index];
+		if (current->key == newKey)
+		{
+			return false;
+		}
+		while (current->next != nullptr)
+		{
+			current = current->next;
+			if (current->key == newKey)
+			{
+				return false;
+			}
+		}
+		Node* newNode = new Node;
+		newNode->key = newKey;
+		newNode->item = newItem;
+		newNode->next = nullptr;
+		current->next = newNode;
+	}
+
+	size++;
+	return true;
+}
+
+bool Booking::returnGame(string& bookingID)
+{
+	int index = hash(bookingID);
+	Node* current = items[index];
+	while (current != nullptr)
+	{
+		if (current->key == bookingID)
+		{
+			if (current->item.bookingIsReturned) {
+				return false;
+			}
+
+			current->item.bookingIsReturned = true;
+			return true;
+		}
+		current = current->next;
+	}
+	return false;
+}
+
+/* BookingData Booking::get(KeyType key)
+{
+	int index = hash(key);
+	Node* current = items[index];
+	while (current != nullptr)
+	{
+		if (current->key == key)
+		{
+			return current->item;
+		}
+		current = current->next;
+	}
+
+	return "";
+} */
+bool Booking::isEmpty()
+{
+	return size == 0;
+}
+
+int Booking::getLength()
+{
+	return size;
+}
+
+void Booking::printAdminSummary()
+{
+	int total = 0;
+	int returned = 0;
+
+	for (int i = 0; i < MAX_SIZE; i++)
+	{
+		if (items[i] != nullptr)
+		{
+			Node* current = items[i];
+			while (current != nullptr)
+			{
+				total++;
+				cout << "Item: " << current->item.bookingID << "\n---\n";
+				if (current->item.bookingIsReturned) {
+					returned++;
+				}
+				current = current->next;
+			}
+		}
+	}
+
+	cout << "Total bookings: " << total << "\n";
+	cout << "Returned bookings: " << returned << "\n";
+	cout << "Active bookings: " << total - returned << "\n";
+}
+
+void Booking::printMemberSummary(string userID)
+{
+	int borrowed = 0;
+	int returned = 0;
+	for (int i = 0; i < MAX_SIZE; i++)
+	{
+		if (items[i] != nullptr)
+		{
+			Node* current = items[i];
+			while (current != nullptr)
+			{
+				if (current->item.bookingID == userID) {
+					borrowed++;
+					cout << "Item: " << current->item.bookingID << "\n---\n";
+					if (current->item.bookingIsReturned) {
+						returned++;
+					}
+				}
+				current = current->next;
+			}
+		}
+	}
+	cout << "Total bookings for user " << userID << ": " << borrowed << "\n";
+	cout << "Returned bookings: " << returned << "\n";
+	cout << "Active bookings: " << borrowed - returned << "\n";
+}

@@ -123,7 +123,23 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Admin.cpp" />
+    <ClCompile Include="Booking.cpp" />
     <ClCompile Include="Home.cpp" />
+    <ClCompile Include="Member.cpp" />
+    <ClCompile Include="User.cpp" />
+    <ClCompile Include="UserDictionary.cpp" />
+	<ClCompile Include="games.cpp" />
+	<ClCompile Include="CSVReader.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Admin.h" />
+    <ClInclude Include="Booking.h" />
+    <ClInclude Include="Member.h" />
+    <ClInclude Include="User.h" />
+    <ClInclude Include="UserDictionary.h" />
+	<ClInclude Include="games.h" />
+	<ClInclude Include="CSVReader.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
