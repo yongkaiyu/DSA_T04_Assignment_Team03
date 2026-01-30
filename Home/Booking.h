@@ -60,6 +60,13 @@ public:
 	// size of Booking is the same
 	bool returnGame(string& bookingID);
 
+
+	// display the items in the Booking
+	void printAdminSummary();
+
+	// display the items in the Booking for a specific member
+	void printMemberSummary(string userID);
+
 	// get an item with the specified key in the Booking (retrieve)
 	// pre : key must exist in Booking
 	// post: none
@@ -80,9 +87,5 @@ public:
 
 	//------------------- Other useful functions -----------------
 
-	// display the items in the Booking
-	void printAdminSummary();
-
-	void printMemberSummary(string userID);
 };
 
