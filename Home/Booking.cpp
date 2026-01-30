@@ -70,10 +70,14 @@ bool Booking::borrowGame(string& userID, string& gameID)
 	KeyType newKey = newItem.bookingID;
 
 	int index = hash(newKey);
+	if (index < 0) return false; // safety
 
 	if (items[index] == nullptr)
 	{
 		Node* newNode = new Node;
+		newNode->key = newKey;
+		newNode->item = newItem;
+		newNode->next = nullptr;
 		items[index] = newNode;
 	}
 	else
@@ -187,7 +191,7 @@ void Booking::printMemberSummary(string userID)
 			Node* current = items[i];
 			while (current != nullptr)
 			{
-				if (current->item.bookingID == userID) {
+				if (current->item.userID == userID) {
 					borrowed++;
 					cout << "Item: " << current->item.bookingID << "\n---\n";
 					if (current->item.bookingIsReturned) {
