@@ -12,5 +12,5 @@ private:
 public:
 	Admin(string UserID, string userName);
 
-	bool addMember(UserDictionary& user, string memberName);
+	bool addMember(UserDictionary& user, string memberName, string& outMemberID);
 };
