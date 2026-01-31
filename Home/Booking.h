@@ -60,6 +60,9 @@ public:
 	// size of Booking is the same
 	bool returnGame(string& bookingID);
 
+	string getGameIDByBookingID(string& bookingID);
+
+	bool bookingExists(string& bookingID);
 
 	// display the items in the Booking
 	void printAdminSummary();
