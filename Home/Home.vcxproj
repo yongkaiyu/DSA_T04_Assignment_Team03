@@ -21,7 +21,7 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{4dbdc525-497b-4b58-a589-c653d5d6a310}</ProjectGuid>
+    <ProjectGuid>{83786FA6-4A95-4F95-8DE2-A5157350A855}</ProjectGuid>
     <RootNamespace>Home</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
@@ -129,8 +129,8 @@
     <ClCompile Include="Member.cpp" />
     <ClCompile Include="User.cpp" />
     <ClCompile Include="UserDictionary.cpp" />
-	<ClCompile Include="games.cpp" />
-	<ClCompile Include="CSVReader.cpp" />
+    <ClCompile Include="games.cpp" />
+    <ClCompile Include="CSVReader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Admin.h" />
@@ -138,8 +138,8 @@
     <ClInclude Include="Member.h" />
     <ClInclude Include="User.h" />
     <ClInclude Include="UserDictionary.h" />
-	<ClInclude Include="games.h" />
-	<ClInclude Include="CSVReader.h" />
+    <ClInclude Include="games.h" />
+    <ClInclude Include="CSVReader.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
