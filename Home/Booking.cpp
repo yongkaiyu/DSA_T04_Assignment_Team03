@@ -49,14 +49,7 @@ int Booking::hash(KeyType key)
 
 string Booking::generateAutoID()
 {
-	char id[5];
-	id[0] = 'B';
-	id[1] = char('0' + (nextBookingNumber / 100) % 10);
-	id[2] = char('0' + (nextBookingNumber / 10) % 10);
-	id[3] = char('0' + (nextBookingNumber % 10));
-	id[4] = char('\0');
-	nextBookingNumber++;
-	return string(id);
+	return "B" + to_string(nextBookingNumber++);
 }
 
 bool Booking::borrowGame(string& userID, string& gameID)
@@ -121,6 +114,36 @@ bool Booking::returnGame(string& bookingID)
 			}
 
 			current->item.bookingIsReturned = true;
+			return true;
+		}
+		current = current->next;
+	}
+	return false;
+}
+
+string Booking::getGameIDByBookingID(string& bookingID)
+{
+	int index = hash(bookingID);
+	Node* current = items[index];
+	while (current != nullptr)
+	{
+		if (current->key == bookingID)
+		{
+			return current->item.gameID;
+		}
+		current = current->next;
+	}
+	return "";
+}
+
+bool Booking::bookingExists(string& bookingID)
+{
+	int index = hash(bookingID);
+	Node* current = items[index];
+	while (current != nullptr)
+	{
+		if (current->key == bookingID)
+		{
 			return true;
 		}
 		current = current->next;

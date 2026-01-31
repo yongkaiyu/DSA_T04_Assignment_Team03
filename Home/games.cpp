@@ -76,6 +76,70 @@ int GameDictionary::removeGame(std::string name) {
     return -1; // Return -1 if the game was not found
 }
 
+int GameDictionary::getTotalCopiesForGameByID(std::string gameID) {
+    for (int i = 0; i < TABLE_SIZE; i++) {
+        Node* current = table[i];
+        while (current) {
+            if (current->data.gameID == gameID) {
+                return current->data.gameTotalCopies;
+            }
+            current = current->next;
+        }
+    }
+    return 0; // Game not found
+}
+
+bool GameDictionary::borrowGameUpdateTotalCopies(std::string gameID) {
+    for (int i = 0; i < TABLE_SIZE; i++) {
+        Node* current = table[i];
+        while (current) {
+            if (current->data.gameID == gameID) {
+                if (current->data.gameAvailableCopies > 0) {
+                    current->data.gameAvailableCopies--;
+                    return true; // Successfully borrowed
+                }
+                else {
+                    return false; // No available copies
+                }
+            }
+            current = current->next;
+        }
+    }
+    return false; // Game not found
+}
+
+bool GameDictionary::returnGameUpdateTotalCopies(std::string gameID) {
+    for (int i = 0; i < TABLE_SIZE; i++) {
+        Node* current = table[i];
+        while (current) {
+            if (current->data.gameID == gameID) {
+                if (current->data.gameAvailableCopies < current->data.gameTotalCopies) {
+                    current->data.gameAvailableCopies++;
+                    return true; // Successfully returned
+                }
+                else {
+                    return false; // All copies are already available
+                }
+            }
+            current = current->next;
+        }
+    }
+    return false; // Game not found
+}
+
+bool GameDictionary::gameExists(std::string gameID) {
+    for (int i = 0; i < TABLE_SIZE; i++) {
+        Node* current = table[i];
+        while (current) {
+            if (current->data.gameID == gameID) {
+                return true; // Game found
+            }
+            current = current->next;
+        }
+    }
+    return false; // Game not found
+}
+
 GameDictionary::~GameDictionary() {
     for (int i = 0; i < TABLE_SIZE; i++) {
         Node* current = table[i];
