@@ -127,6 +127,7 @@ void memberMenu(GameDictionary& lib,Booking* bookingSystem, string userID) {
         cin >> choice;
 
         if (choice == 1) {
+			lib.displayAll();
             // borrow game (booking)
 			string gameID;
 			cout << "Enter the game ID to borrow: ";
@@ -135,33 +136,50 @@ void memberMenu(GameDictionary& lib,Booking* bookingSystem, string userID) {
 				cout << "The game ID does not exist.\n";
                 continue;
 			}
-            else if (lib.getTotalCopiesForGameByID(gameID) == 0)
+            else if (lib.getAvailableCopiesForGameByID(gameID) == 0)
             {
                 cout << "The game has been fully booked.\n";
                 continue;
             }
-            else {
+            else if (lib.gameExists(gameID) && lib.getAvailableCopiesForGameByID(gameID) != 0) {
                 bookingSystem->borrowGame(userID, gameID);
                 lib.borrowGameUpdateTotalCopies(gameID);
                 cout << "Game borrowed successfully.\n";
                 continue;
             }
+            else {
+                cout << "An unexpected error occurred.\n";
+                continue;
+			}
 			
         }
         else if (choice == 2) {
+            bookingSystem->printMemberSummary(userID);
             // return game (booking)
 			string bookingID;
 			cout << "Enter the booking ID to return: ";
 			cin >> bookingID;
-            if(!bookingSystem->bookingExists(bookingID)) {
+            if (!bookingSystem->bookingExists(bookingID)) {
                 cout << "The booking ID does not exist.\n";
                 continue;
 			}
-            else {
+            else if (bookingSystem->isBookingReturned(bookingID)) {
+                cout << "The game has already been returned.\n";
+                continue;
+            }
+            else if (!bookingSystem->isUserBookingOwner(bookingID, userID)) {
+                cout << "You are not the owner of this booking.\n";
+				continue;
+            }
+            else if (bookingSystem->bookingExists(bookingID) && !bookingSystem->isBookingReturned(bookingID) && bookingSystem->isUserBookingOwner(bookingID,userID)) {
                 bookingSystem->returnGame(bookingID);
                 string gameID = bookingSystem->getGameIDByBookingID(bookingID);
                 lib.returnGameUpdateTotalCopies(gameID);
                 cout << "Game returned successfully.\n";
+                continue;
+            }
+            else {
+                cout << "An unexpected error occurred.\n";
                 continue;
             }
 			
@@ -175,7 +193,7 @@ void memberMenu(GameDictionary& lib,Booking* bookingSystem, string userID) {
 
 int main() {
     GameDictionary lib;
-	Booking* bookingSystem = new Booking;
+    Booking bookingSystem;
 
     UserDictionary users;
     Admin admin("A0001", "Admin");
@@ -186,7 +204,7 @@ int main() {
         cin >> roleChoice;
         if (roleChoice == 1)
         {
-            adminMenu(admin, users, lib, bookingSystem);
+            adminMenu(admin, users, lib, &bookingSystem);
         }
         else if (roleChoice == 2)
         {
@@ -195,7 +213,7 @@ int main() {
             cin >> memberID;
             cout << memberID;
             if (users.contains(memberID)) {
-                memberMenu(lib,bookingSystem, memberID);
+                memberMenu(lib,&bookingSystem, memberID);
             }
             else {
                 cout << "Member ID not found.\n";
@@ -210,8 +228,6 @@ int main() {
             cout << "Invalid role selection.\n";
         }
     }
-
-	
 
 	//loadGamesFromCSV("games.csv", lib); // Load data from CSV into the dictionary
 

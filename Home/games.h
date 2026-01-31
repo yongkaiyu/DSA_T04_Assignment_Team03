@@ -39,7 +39,7 @@ public:
 
     int removeGame(std::string name); //removes one copy of the game from the dictionary or else delete 
 
-	int getTotalCopiesForGameByID(std::string name);
+	int getAvailableCopiesForGameByID(std::string name);
 
 	bool borrowGameUpdateTotalCopies(std::string gameID);
 

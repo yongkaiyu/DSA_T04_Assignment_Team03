@@ -151,6 +151,36 @@ bool Booking::bookingExists(string& bookingID)
 	return false;
 }
 
+bool Booking::isBookingReturned(string& bookingID)
+{
+	int index = hash(bookingID);
+	Node* current = items[index];
+	while (current != nullptr)
+	{
+		if (current->key == bookingID)
+		{
+			return current->item.bookingIsReturned;
+		}
+		current = current->next;
+	}
+	return false;
+}
+
+bool Booking::isUserBookingOwner(string& bookingID, string& userID)
+{
+	int index = hash(bookingID);
+	Node* current = items[index];
+	while (current != nullptr)
+	{
+		if (current->key == bookingID)
+		{
+			return current->item.userID == userID;
+		}
+		current = current->next;
+	}
+	return false;
+}
+
 /* BookingData Booking::get(KeyType key)
 {
 	int index = hash(key);
