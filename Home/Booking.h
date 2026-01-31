@@ -64,6 +64,10 @@ public:
 
 	bool bookingExists(string& bookingID);
 
+	bool isBookingReturned(string& bookingID);
+
+	bool isUserBookingOwner(string& bookingID, string& userID);
+
 	// display the items in the Booking
 	void printAdminSummary();
 

@@ -76,12 +76,12 @@ int GameDictionary::removeGame(std::string name) {
     return -1; // Return -1 if the game was not found
 }
 
-int GameDictionary::getTotalCopiesForGameByID(std::string gameID) {
+int GameDictionary::getAvailableCopiesForGameByID(std::string gameID) {
     for (int i = 0; i < TABLE_SIZE; i++) {
         Node* current = table[i];
         while (current) {
             if (current->data.gameID == gameID) {
-                return current->data.gameTotalCopies;
+                return current->data.gameAvailableCopies;
             }
             current = current->next;
         }
@@ -138,6 +138,26 @@ bool GameDictionary::gameExists(std::string gameID) {
         }
     }
     return false; // Game not found
+}
+
+void GameDictionary::displayAll() {
+    for (int i = 0; i < TABLE_SIZE; i++) {
+        Node* current = table[i];
+        while (current) {
+            std::cout << "ID: " << current->data.gameID
+                      << ", Name: " << current->data.gameName
+				      << ", Min Players: " << current->data.gameMinPlayer
+				      << ", Max Players: " << current->data.gameMaxPlayer
+				      << ", Min Play Time: " << current->data.gameMinPlayTime
+				      << ", Max Play Time: " << current->data.gameMaxPlayTime
+				      << ", Year Published: " << current->data.gameYearPublished
+				      << ", Average Rating: " << std::fixed << std::setprecision(2) << current->data.gameAverageRating
+                      << ", Total Copies: " << current->data.gameTotalCopies
+                      << ", Available Copies: " << current->data.gameAvailableCopies
+                      << std::endl;
+            current = current->next;
+        }
+	}
 }
 
 GameDictionary::~GameDictionary() {
