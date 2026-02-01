@@ -86,7 +86,7 @@ int GameDictionary::getAvailableCopiesForGameByID(std::string gameID) {
             current = current->next;
         }
     }
-    return 0; // Game not found
+    return -1; // Game not found
 }
 
 bool GameDictionary::borrowGameUpdateTotalCopies(std::string gameID) {
