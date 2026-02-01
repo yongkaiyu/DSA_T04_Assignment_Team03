@@ -106,7 +106,7 @@ void adminMenu(Admin& admin, UserDictionary& users, GameDictionary& lib, Booking
         }
         else if (choice == 4) {
             // display borrowed/returned summary (look at booking)
-			bookingSystem->printAdminSummary();
+			bookingSystem->displayAllSortedByGameID();
         }
         else {
             break;
@@ -186,7 +186,10 @@ void memberMenu(GameDictionary& lib,Booking* bookingSystem, string userID) {
         }
         else if (choice == 3) {
             // display summary of games borrowed/returned (booking and users maybe)
-			bookingSystem->printMemberSummary(userID);
+			bookingSystem->displaySortedByBookingID(userID);
+        }
+        else {
+			break;
         }
     }
 }
