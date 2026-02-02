@@ -96,6 +96,89 @@ float GameDictionary::rateGame(std::string id, float rating) {
     return -1.0f; // Indicate failure (ID not found)
 }
 
+int GameDictionary::getAvailableCopiesForGameByID(std::string gameID) {
+    for (int i = 0; i < TABLE_SIZE; i++) {
+        Node* current = table[i];
+        while (current) {
+            if (current->data.gameID == gameID) {
+                return current->data.gameAvailableCopies;
+            }
+            current = current->next;
+        }
+    }
+    return -1; // Game not found
+}
+
+bool GameDictionary::borrowGameUpdateTotalCopies(std::string gameID) {
+    for (int i = 0; i < TABLE_SIZE; i++) {
+        Node* current = table[i];
+        while (current) {
+            if (current->data.gameID == gameID) {
+                if (current->data.gameAvailableCopies > 0) {
+                    current->data.gameAvailableCopies--;
+                    return true; // Successfully borrowed
+                }
+                else {
+                    return false; // No available copies
+                }
+            }
+            current = current->next;
+        }
+    }
+    return false; // Game not found
+}
+
+bool GameDictionary::returnGameUpdateTotalCopies(std::string gameID) {
+    for (int i = 0; i < TABLE_SIZE; i++) {
+        Node* current = table[i];
+        while (current) {
+            if (current->data.gameID == gameID) {
+                if (current->data.gameAvailableCopies < current->data.gameTotalCopies) {
+                    current->data.gameAvailableCopies++;
+                    return true; // Successfully returned
+                }
+                else {
+                    return false; // All copies are already available
+                }
+            }
+            current = current->next;
+        }
+    }
+    return false; // Game not found
+}
+
+bool GameDictionary::gameExists(std::string gameID) {
+    for (int i = 0; i < TABLE_SIZE; i++) {
+        Node* current = table[i];
+        while (current) {
+            if (current->data.gameID == gameID) {
+                return true; // Game found
+            }
+            current = current->next;
+        }
+    }
+    return false; // Game not found
+}
+
+void GameDictionary::displayAll() {
+    for (int i = 0; i < TABLE_SIZE; i++) {
+        Node* current = table[i];
+        while (current) {
+            std::cout << "ID: " << current->data.gameID
+                      << ", Name: " << current->data.gameName
+				      << ", Min Players: " << current->data.gameMinPlayer
+				      << ", Max Players: " << current->data.gameMaxPlayer
+				      << ", Min Play Time: " << current->data.gameMinPlayTime
+				      << ", Max Play Time: " << current->data.gameMaxPlayTime
+				      << ", Year Published: " << current->data.gameYearPublished
+				      << ", Average Rating: " << std::fixed << std::setprecision(2) << current->data.gameAverageRating
+                      << ", Total Copies: " << current->data.gameTotalCopies
+                      << ", Available Copies: " << current->data.gameAvailableCopies
+                      << std::endl;
+            current = current->next;
+        }
+	}
+}
 
 GameDictionary::~GameDictionary() {
     for (int i = 0; i < TABLE_SIZE; i++) {

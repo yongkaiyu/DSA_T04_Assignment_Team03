@@ -41,4 +41,11 @@ public:
 
     // Updates the rating of a specific game
     float rateGame(std::string id, float rating);
+	int getAvailableCopiesForGameByID(std::string name);
+
+	bool borrowGameUpdateTotalCopies(std::string gameID);
+
+	bool returnGameUpdateTotalCopies(std::string gameID);
+
+	bool gameExists(std::string gameID);
 };
