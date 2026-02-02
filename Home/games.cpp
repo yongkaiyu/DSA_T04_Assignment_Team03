@@ -22,6 +22,23 @@ Game* GameDictionary::searchByName(std::string name) {
     return nullptr;
 }
 
+
+//Search by ID
+Game* GameDictionary::searchGame(std::string id) { 
+    int index = hashFunction(id);
+
+    Node* current = table[index];
+    while (current != nullptr) {
+        // Compare the gameID in the data struct with the search ID
+        if (current->data.gameID == id) {
+            return &(current->data); // Return the address of the game object
+        }
+        current = current->next; // Move to the next node in the chain
+    }
+    return nullptr;
+}
+
+
 void GameDictionary::addOrUpdateGame(Game g) {
     Game* existing = searchByName(g.gameName);
 
@@ -160,7 +177,7 @@ bool GameDictionary::gameExists(std::string gameID) {
     return false; // Game not found
 }
 
-void GameDictionary::displayAll() {
+void GameDictionary::displayAll() { //DISPLAYS EVERYTHING
     for (int i = 0; i < TABLE_SIZE; i++) {
         Node* current = table[i];
         while (current) {
@@ -179,6 +196,24 @@ void GameDictionary::displayAll() {
         }
 	}
 }
+
+void GameDictionary::displayGameDetails(std::string id) { //Displays a particular game details
+    Game* found = searchGame(id); 
+    if (found) {
+        std::cout << "\n--- Showing Details for Game ID: " << id << " ---\n";
+        std::cout << "Name: " << found->gameName
+            << "\nPlayers: " << found->gameMinPlayer << "-" << found->gameMaxPlayer
+            << "\nPlay Time: " << found->gameMinPlayTime << "-" << found->gameMaxPlayTime << " mins"
+            << "\nYear Published: " << found->gameYearPublished
+            << "\nAverage Rating: " << std::fixed << std::setprecision(2) << found->gameAverageRating
+            << "\nTotal Copies: " << found->gameTotalCopies
+            << "\nAvailable Copies: " << found->gameAvailableCopies << std::endl;
+    }
+    else {
+        std::cout << "Game with ID " << id << " not found." << std::endl;
+    }
+}
+
 
 GameDictionary::~GameDictionary() {
     for (int i = 0; i < TABLE_SIZE; i++) {
