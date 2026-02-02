@@ -122,6 +122,7 @@ void memberMenu(Booking* bookingSystem, string userID) {
         cout << "1) Borrow a board game\n";
         cout << "2) Return a board game\n";
         cout << "3) Display summary of games borrowed/returned\n";
+		cout << "4) Rate a board game\n";
         cout << "0) Exit\n";
         cout << "Choose: ";
         cin >> choice;
@@ -145,6 +146,26 @@ void memberMenu(Booking* bookingSystem, string userID) {
         else if (choice == 3) {
             // display summary of games borrowed/returned (booking and users maybe)
 			bookingSystem->printMemberSummary(userID);
+        }
+
+        else if (choice == 4) {
+            string gameID;
+            float rating;
+
+            cout << "Enter the game ID to rate: ";
+            cin >> gameID;
+            cout << "Enter your rating (1-10): ";
+            cin >> rating;
+
+            float newAvg = gameDict->rateGame(gameID, rating);
+
+            if (newAvg != -1.0f) {
+                // We use fixed and setprecision(1) to make it look like "8.5" instead of "8.5000"
+                cout << "Game rated successfully. New Average Rating: " << newAvg << "/10\n";
+            }
+            else {
+                cout << "Error: Invalid ID or rating score.\n";
+            }
         }
     }
 }

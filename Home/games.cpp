@@ -76,6 +76,27 @@ int GameDictionary::removeGame(std::string name) {
     return -1; // Return -1 if the game was not found
 }
 
+float GameDictionary::rateGame(std::string id, float rating) {
+    // Basic range check
+    if (rating < 1.0f || rating > 10.0f) return -1.0f;
+
+    Game* found = searchGame(id);
+
+    if (found != nullptr) {
+        if (found->gameAverageRating == 0.0f) {
+            found->gameAverageRating = rating;
+        }
+        else {
+            // Running average logic
+            found->gameAverageRating = (found->gameAverageRating + rating) / 2.0f;
+        }
+        return found->gameAverageRating; // Return the new value
+    }
+
+    return -1.0f; // Indicate failure (ID not found)
+}
+
+
 GameDictionary::~GameDictionary() {
     for (int i = 0; i < TABLE_SIZE; i++) {
         Node* current = table[i];

@@ -38,4 +38,7 @@ public:
     void displayAll();
 
     int removeGame(std::string name); //removes one copy of the game from the dictionary or else delete 
+
+    // Updates the rating of a specific game
+    float rateGame(std::string id, float rating);
 };
