@@ -215,6 +215,40 @@ void memberMenu(GameDictionary& lib,Booking* bookingSystem, string userID) {
     }
 }
 
+void viewGamesMenu(GameDictionary* gameDict) {
+    int choice = -1;
+    while (choice != 0) {
+        cout << "\n=== VIEW GAMES MENU ===\n";
+        cout << "1) Display details of a particular game\n";
+        cout << "2) List games by number of players\n";
+        cout << "0) Back to Main Menu\n";
+        cout << "Choose: ";
+        cin >> choice;
+
+        if (choice == 1) {
+            string id;
+            cout << "Enter Game ID: ";
+            cin >> id;
+            gameDict->displayGameDetails(id);
+        }
+        else if (choice == 2) {
+            int p;
+            int sortChoice;
+            string sortType = "none";
+
+            cout << "Enter number of players: ";
+            cin >> p;
+            cout << "Sort by: 1) Year of Publication  2) Average Rating  3) None: ";
+            cin >> sortChoice;
+
+            if (sortChoice == 1) sortType = "year";
+            else if (sortChoice == 2) sortType = "rating";
+
+            gameDict->displayFilteredGames(p, sortType);
+        }
+    }
+}
+
 int main() {
     GameDictionary lib;
     Booking bookingSystem;
@@ -224,7 +258,7 @@ int main() {
 
     while (true) {
         int roleChoice = -1;
-        cout << "Select Role:\n1) Admin\n2) Member\nChoose: ";
+        cout << "Select Role:\n1) Admin\n2) Member\n3) View Games\nChoose: ";
         cin >> roleChoice;
         if (roleChoice == 1)
         {
@@ -244,6 +278,11 @@ int main() {
                 cout << users.getUser(memberID);
             }
         }
+
+        else if (roleChoice == 3) {
+            viewGamesMenu(&lib);
+		}
+
         else if (roleChoice == 0) {
             break;
         }
