@@ -35,6 +35,8 @@ void loadGamesFromCSV(std::string filename, GameDictionary& dict) {
         g.gameMinPlayTime = std::stoi(fields[4]);
         g.gameYearPublished = std::stoi(fields[5]);
 
+        g.gameAverageRating = 0.0f; // Initialize to 0 since it's not in the CSV
+
         // Note: gameID and copy counts are handled inside addOrUpdateGame
         dict.addOrUpdateGame(g);
     }

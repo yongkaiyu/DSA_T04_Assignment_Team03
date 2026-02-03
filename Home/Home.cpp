@@ -122,6 +122,7 @@ void memberMenu(GameDictionary& lib,Booking* bookingSystem, string userID) {
         cout << "1) Borrow a board game\n";
         cout << "2) Return a board game\n";
         cout << "3) Display summary of games borrowed/returned\n";
+		cout << "4) Rate a board game\n";
         cout << "0) Exit\n";
         cout << "Choose: ";
         cin >> choice;
@@ -191,6 +192,60 @@ void memberMenu(GameDictionary& lib,Booking* bookingSystem, string userID) {
         else {
 			break;
         }
+
+        else if (choice == 4) {
+            string gameID;
+            float rating;
+
+            cout << "Enter the game ID to rate: ";
+            cin >> gameID;
+            cout << "Enter your rating (1-10): ";
+            cin >> rating;
+
+            float newAvg = gameDict->rateGame(gameID, rating);
+
+            if (newAvg != -1.0f) {
+                // We use fixed and setprecision(1) to make it look like "8.5" instead of "8.5000"
+                cout << "Game rated successfully. New Average Rating: " << newAvg << "/10\n";
+            }
+            else {
+                cout << "Error: Invalid ID or rating score.\n";
+            }
+        }
+    }
+}
+
+void viewGamesMenu(GameDictionary* gameDict) {
+    int choice = -1;
+    while (choice != 0) {
+        cout << "\n=== VIEW GAMES MENU ===\n";
+        cout << "1) Display details of a particular game\n";
+        cout << "2) List games by number of players\n";
+        cout << "0) Back to Main Menu\n";
+        cout << "Choose: ";
+        cin >> choice;
+
+        if (choice == 1) {
+            string id;
+            cout << "Enter Game ID: ";
+            cin >> id;
+            gameDict->displayGameDetails(id);
+        }
+        else if (choice == 2) {
+            int p;
+            int sortChoice;
+            string sortType = "none";
+
+            cout << "Enter number of players: ";
+            cin >> p;
+            cout << "Sort by: 1) Year of Publication  2) Average Rating  3) None: ";
+            cin >> sortChoice;
+
+            if (sortChoice == 1) sortType = "year";
+            else if (sortChoice == 2) sortType = "rating";
+
+            gameDict->displayFilteredGames(p, sortType);
+        }
     }
 }
 
@@ -203,7 +258,7 @@ int main() {
 
     while (true) {
         int roleChoice = -1;
-        cout << "Select Role:\n1) Admin\n2) Member\nChoose: ";
+        cout << "Select Role:\n1) Admin\n2) Member\n3) View Games\nChoose: ";
         cin >> roleChoice;
         if (roleChoice == 1)
         {
@@ -223,6 +278,11 @@ int main() {
                 cout << users.getUser(memberID);
             }
         }
+
+        else if (roleChoice == 3) {
+            viewGamesMenu(&lib);
+		}
+
         else if (roleChoice == 0) {
             break;
         }
