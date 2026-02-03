@@ -155,7 +155,7 @@ void memberMenu(GameDictionary& lib,Booking* bookingSystem, string userID) {
 			
         }
         else if (choice == 2) {
-            bookingSystem->printMemberSummary(userID);
+            bookingSystem->displaySortedByUserID(userID);
             // return game (booking)
 			string bookingID;
 			cout << "Enter the booking ID to return: ";
@@ -187,7 +187,7 @@ void memberMenu(GameDictionary& lib,Booking* bookingSystem, string userID) {
         }
         else if (choice == 3) {
             // display summary of games borrowed/returned (booking and users maybe)
-			bookingSystem->displaySortedByBookingID(userID);
+			bookingSystem->displaySortedByUserID(userID);
         }
         else {
 			break;

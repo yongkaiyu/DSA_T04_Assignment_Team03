@@ -2,8 +2,8 @@
 
 Booking::Booking() {
 
-	size = 0;
-	nextBookingNumber = 1;
+	size = 0; // initialize size to 0
+	nextBookingNumber = 1; // start booking numbers from 1
 	for (int i = 0; i < MAX_SIZE; i++)
 	{
 		items[i] = nullptr;
@@ -29,43 +29,53 @@ Booking::~Booking()
 
 }
 
-int Booking::hash(KeyType key)
+int Booking::hash(KeyType key) // djb2 hash function by Dan Bernstein
 {
 	if (key.empty())
 	{
 		return -1;
 	}
-
+	// 5381 is used as it is non-zero, odd number, ensuring early characters don't collapse to similar hashes. 0 would dominate the hash and make it ineffective.
+	// Empirically, 5381 + x33 has low collision rates for string hashing.
+	// Dan Bernstein empirically tested this as stable across varying string lengths, effective for ASCII strings and consistent on different platforms.
+	// 5381 is just more well known, trusted and documented in hashing literature.
 	unsigned long h = 5381;
 
+	// hash each character in the key
+	// shift left by 5 bits and add the current character
+	// c is the ASCII value of the character (eg. 'A' = 65)
 	for (char c : key)
 	{
-		h = ((h << 5) + h) + c; // h * 33 + c
+		h = ((h << 5) + h) + c; // ((h * (2 to the power of 5)) * h) + c -> (h * 33) + c
 	}
 
-	return int(h % MAX_SIZE);
+	return int(h % MAX_SIZE); // ensure index is within table size
 
 }
 
-string Booking::generateAutoID()
+string Booking::generateAutoID() // generates booking IDs like B1, B2, B3, ...
 {
 	return "B" + to_string(nextBookingNumber++);
 }
 
-bool Booking::borrowGame(string& userID, string& gameID)
+bool Booking::borrowGame(string& userID, string& gameID) // add a new booking
 {
+	// Initialize a new BookingData item
 	BookingData newItem;
 
+	// Fill in the details
 	newItem.bookingID = generateAutoID();
 	newItem.userID = userID;
 	newItem.gameID = gameID;
 	newItem.bookingIsReturned = false;
 	KeyType newKey = newItem.bookingID;
 
+	// Hash the key to get the index
 	int index = hash(newKey);
-	if (index < 0) return false; // safety
 
-	if (items[index] == nullptr)
+	if (index < 0) return false; // ensure that the index is valid
+
+	if (items[index] == nullptr) // no collision, directly insert
 	{
 		Node* newNode = new Node;
 		newNode->key = newKey;
@@ -73,9 +83,8 @@ bool Booking::borrowGame(string& userID, string& gameID)
 		newNode->next = nullptr;
 		items[index] = newNode;
 	}
-	else
+	else // collision occurred, use separate chaining
 	{
-		cout << "Collision at " << index << " - " << newKey << " and " << items[index]->key;
 		cout << endl;
 		Node* current = items[index];
 		if (current->key == newKey)
@@ -101,15 +110,17 @@ bool Booking::borrowGame(string& userID, string& gameID)
 	return true;
 }
 
-bool Booking::returnGame(string& bookingID)
+bool Booking::returnGame(string& bookingID) // update booking to mark as returned
 {
+	// find the booking by bookingID
 	int index = hash(bookingID);
+
 	Node* current = items[index];
 	while (current != nullptr)
 	{
 		if (current->key == bookingID)
 		{
-			if (current->item.bookingIsReturned) {
+			if (current->item.bookingIsReturned) { // already returned
 				return false;
 			}
 
@@ -118,70 +129,78 @@ bool Booking::returnGame(string& bookingID)
 		}
 		current = current->next;
 	}
-	return false;
+	return false; // bookingID not found
 }
 
-string Booking::getGameIDByBookingID(string& bookingID)
+string Booking::getGameIDByBookingID(string& bookingID) // retrieve gameID by bookingID
 {
+	// find the booking by bookingID
 	int index = hash(bookingID);
+
 	Node* current = items[index];
 	while (current != nullptr)
 	{
-		if (current->key == bookingID)
+		if (current->key == bookingID) // found
 		{
 			return current->item.gameID;
 		}
 		current = current->next;
 	}
-	return "";
+	return ""; // bookingID not found
 }
 
-bool Booking::bookingExists(string& bookingID)
+bool Booking::bookingExists(string& bookingID) // check if booking exists
 {
+	// find the booking by bookingID
 	int index = hash(bookingID);
+
 	Node* current = items[index];
 	while (current != nullptr)
 	{
-		if (current->key == bookingID)
+		if (current->key == bookingID) // found
 		{
 			return true;
 		}
 		current = current->next;
 	}
-	return false;
+	return false; // bookingID not found
 }
 
-bool Booking::isBookingReturned(string& bookingID)
+bool Booking::isBookingReturned(string& bookingID) // check if booking is returned
 {
+	// find the booking by bookingID
 	int index = hash(bookingID);
+
 	Node* current = items[index];
 	while (current != nullptr)
 	{
 		if (current->key == bookingID)
 		{
-			return current->item.bookingIsReturned;
+			return current->item.bookingIsReturned; // return true if returned
+		}
+		current = current->next;
+	}
+	return false; // bookingID not found
+}
+
+bool Booking::isUserBookingOwner(string& bookingID, string& userID) // check if user is owner of booking
+{
+	// find the booking by bookingID
+	int index = hash(bookingID);
+
+	Node* current = items[index];
+	while (current != nullptr)
+	{
+		if (current->key == bookingID)
+		{
+			return current->item.userID == userID; // return true if user is owner
 		}
 		current = current->next;
 	}
 	return false;
 }
 
-bool Booking::isUserBookingOwner(string& bookingID, string& userID)
-{
-	int index = hash(bookingID);
-	Node* current = items[index];
-	while (current != nullptr)
-	{
-		if (current->key == bookingID)
-		{
-			return current->item.userID == userID;
-		}
-		current = current->next;
-	}
-	return false;
-}
-
-int Booking::countAllBookings() const
+int Booking::countAllBookings() const // count all bookings
 {
 	int count = 0;
 	for (int i = 0; i < MAX_SIZE; i++)
@@ -196,7 +215,7 @@ int Booking::countAllBookings() const
 	return count;
 }
 
-int Booking::collectAllBookings(BookingData arr[], int max)
+int Booking::collectAllBookings(BookingData arr[], int max) // collect all bookings and store in arr
 {
 	int count = 0;
 	for (int i = 0; i < MAX_SIZE; i++)
@@ -211,8 +230,9 @@ int Booking::collectAllBookings(BookingData arr[], int max)
 	return count;
 }
 
-static int extractGameNumber(const std::string& gameID)
+static int extractGameNumber(const std::string& gameID) // extract numeric part from gameID like G1, G2, ...
 {
+	// verify format
 	if (gameID.size() < 2) return -1;
 	if (gameID[0] != 'G') return -1;
 
@@ -226,66 +246,71 @@ static int extractGameNumber(const std::string& gameID)
 	return num;
 }
 
-static bool comesBeforeByGameID(const BookingData& a,
-	const BookingData& b)
+static bool comesBeforeByGameID(const BookingData& a, const BookingData& b) // comparison function for sorting by gameID
 {
 	int ga = extractGameNumber(a.gameID);
 	int gb = extractGameNumber(b.gameID);
 
 	// invalid IDs go last
-	if (ga == -1 && gb != -1) return false;
-	if (ga != -1 && gb == -1) return true;
+	if (ga == -1 && gb != -1) return false; // a is invalid, b is valid
+	if (ga != -1 && gb == -1) return true; // a is valid, b is invalid
 
-	if (ga != gb)
+	if (ga != gb) // compare by game number
 		return ga < gb;
 
 	// tie-breaker: bookingID (chronological)
 	return a.bookingID < b.bookingID;
 }
 
-static void mergeByGameID(BookingData arr[],
-	BookingData temp[],
-	int left, int mid, int right)
+static void mergeByGameID(BookingData arr[], BookingData temp[], int left, int mid, int right) // merge two halves for merge sort
 {
 	int i = left;      // left half pointer
 	int j = mid + 1;   // right half pointer
 	int k = left;      // temp array pointer
 
+	// merge the two halves into temp[]
 	while (i <= mid && j <= right)
 	{
-		if (comesBeforeByGameID(arr[i], arr[j]))
-			temp[k++] = arr[i++];
+		if (comesBeforeByGameID(arr[i], arr[j])) // compare by gameID
+			temp[k++] = arr[i++]; // take from left half
 		else
-			temp[k++] = arr[j++];
+			temp[k++] = arr[j++]; // take from right half
 	}
 
 	// copy remaining left half
 	while (i <= mid)
-		temp[k++] = arr[i++];
+		temp[k++] = arr[i++]; // take from left half
 
 	// copy remaining right half
 	while (j <= right)
-		temp[k++] = arr[j++];
+		temp[k++] = arr[j++]; // take from right half
 
 	// copy back to original array
 	for (int idx = left; idx <= right; idx++)
 		arr[idx] = temp[idx];
 }
 
-static void mergeSortByGameID(BookingData arr[],
-	BookingData temp[],
-	int left, int right)
+// recursive merge sort by gameID
+// Why merge sort?
+// Merge sort is efficient with O(n log n) time complexity, stable (preserves order of equal elements), and works well for linked structures.
+// It is suitable for sorting large datasets, which is ideal for admin functions that may need to handle many bookings.
+static void mergeSortByGameID(BookingData arr[], BookingData temp[], int left, int right)
 {
-	if (left >= right)
+	if (left >= right) // base case
 		return;
 
-	int mid = left + (right - left) / 2;
+	int mid = left + (right - left) / 2; // avoid overflow
 
+	// Recursively sort left and right halves
 	mergeSortByGameID(arr, temp, left, mid);
 	mergeSortByGameID(arr, temp, mid + 1, right);
 	mergeByGameID(arr, temp, left, mid, right);
 }
 
+// Admin function to display all bookings sorted by gameID
+// Why by gameID?
+// GameID groups bookings of the same game together, making it easier for admins to see all bookings for a specific game in one place.
+// This is useful for managing inventory, tracking popular games, and handling returns efficiently.
 void Booking::displayAllSortedByGameID()
 {
 	int n = countAllBookings();
@@ -315,8 +340,7 @@ void Booking::displayAllSortedByGameID()
 	delete[] arr;
 }
 
-
-int Booking::countBookingsByUserID(const string& userID)
+int Booking::countBookingsByUserID(const string& userID) // count bookings by specific userID
 {
 	int count = 0;
 	for (int i = 0; i < MAX_SIZE; i++)
@@ -332,7 +356,7 @@ int Booking::countBookingsByUserID(const string& userID)
 	return count;
 }
 
-int Booking::collectBookingsByUserID(const string& userID, BookingData arr[], int max)
+int Booking::collectBookingsByUserID(const string& userID, BookingData arr[], int max) // collect bookings by specific userID
 {
 	int count = 0;
 	for (int i = 0; i < MAX_SIZE; i++)
@@ -340,7 +364,7 @@ int Booking::collectBookingsByUserID(const string& userID, BookingData arr[], in
 		Node* cur = items[i];
 		while (cur != nullptr && count < max)
 		{
-			if (cur->item.userID == userID) {
+			if (cur->item.userID == userID) { 
 				arr[count++] = cur->item;
 			}
 			cur = cur->next;
@@ -349,8 +373,9 @@ int Booking::collectBookingsByUserID(const string& userID, BookingData arr[], in
 	return count;
 }
 
-static int extractBookingNumber(const std::string& bookingID)
+static int extractBookingNumber(const std::string& bookingID) // extract numeric part from bookingID like B1, B2, ...
 {
+	// verify format
 	if (bookingID.size() < 2) return -1;
 	if (bookingID[0] != 'B') return -1;
 
@@ -364,7 +389,7 @@ static int extractBookingNumber(const std::string& bookingID)
 	return num;
 }
 
-void insertionSortByBookingID(BookingData arr[], int n)
+void insertionSortByBookingID(BookingData arr[], int n) // insertion sort by bookingID in descending order
 {
 	for (int i = 1; i < n; i++)
 	{
@@ -375,16 +400,19 @@ void insertionSortByBookingID(BookingData arr[], int n)
 		while (j >= 0 &&
 			extractBookingNumber(arr[j].bookingID) < keyNum)
 		{
-			arr[j + 1] = arr[j];
+			arr[j + 1] = arr[j]; // shift right
 			j--;
 		}
-		arr[j + 1] = key;
+		arr[j + 1] = key; // insert key
 	}
 }
 
-void Booking::displaySortedByBookingID(const string& userID)
+// Member function to display bookings by specific userID sorted by bookingID
+// Why by bookingID?
+// BookingID reflects the chronological order of bookings, allowing users to see their most recent bookings first.
+// This is useful for members to track their borrowing history and manage returns effectively.
+void Booking::displaySortedByUserID(const string& userID)
 {
-
 	int n = countBookingsByUserID(userID);
 
 	if(n <= 0)
@@ -429,85 +457,4 @@ void Booking::displaySortedByBookingID(const string& userID)
 	cout << "Active bookings: " << count - returned << endl;
 
 	delete[] arr;
-}
-
-
-
-/* BookingData Booking::get(KeyType key)
-{
-	int index = hash(key);
-	Node* current = items[index];
-	while (current != nullptr)
-	{
-		if (current->key == key)
-		{
-			return current->item;
-		}
-		current = current->next;
-	}
-
-	return "";
-} */
-bool Booking::isEmpty()
-{
-	return size == 0;
-}
-
-int Booking::getLength()
-{
-	return size;
-}
-
-void Booking::printAdminSummary()
-{
-	int total = 0;
-	int returned = 0;
-
-	for (int i = 0; i < MAX_SIZE; i++)
-	{
-		if (items[i] != nullptr)
-		{
-			Node* current = items[i];
-			while (current != nullptr)
-			{
-				total++;
-				cout << "Item: " << current->item.bookingID << "\n---\n";
-				if (current->item.bookingIsReturned) {
-					returned++;
-				}
-				current = current->next;
-			}
-		}
-	}
-
-	cout << "Total bookings: " << total << "\n";
-	cout << "Returned bookings: " << returned << "\n";
-	cout << "Active bookings: " << total - returned << "\n";
-}
-
-void Booking::printMemberSummary(string userID)
-{
-	int borrowed = 0;
-	int returned = 0;
-	for (int i = 0; i < MAX_SIZE; i++)
-	{
-		if (items[i] != nullptr)
-		{
-			Node* current = items[i];
-			while (current != nullptr)
-			{
-				if (current->item.userID == userID) {
-					borrowed++;
-					cout << "Item: " << current->item.bookingID << "\n---\n";
-					if (current->item.bookingIsReturned) {
-						returned++;
-					}
-				}
-				current = current->next;
-			}
-		}
-	}
-	cout << "Total bookings for user " << userID << ": " << borrowed << "\n";
-	cout << "Returned bookings: " << returned << "\n";
-	cout << "Active bookings: " << borrowed - returned << "\n";
 }
