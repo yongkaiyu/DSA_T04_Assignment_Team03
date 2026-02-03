@@ -35,15 +35,28 @@ public:
     // Logic: If name exists, increment copies. If not, create new ID and add.
     void addOrUpdateGame(Game g);
     Game* searchByName(std::string name);
-    void displayAll();
+
+    Game* searchGame(std::string id);
+
+    void displayAll(); // part i 
 
     int removeGame(std::string name); //removes one copy of the game from the dictionary or else delete 
 
-	int getTotalCopiesForGameByID(std::string name);
+    // Updates the rating of a specific game
+    float rateGame(std::string id, float rating);
+
+	int getAvailableCopiesForGameByID(std::string name);
 
 	bool borrowGameUpdateTotalCopies(std::string gameID);
 
 	bool returnGameUpdateTotalCopies(std::string gameID);
 
 	bool gameExists(std::string gameID);
+
+
+	//view games menu logic
+    void displayGameDetails(std::string id);
+
+    // Filter and sort logic
+    void displayFilteredGames(int players, std::string sortBy);
 };

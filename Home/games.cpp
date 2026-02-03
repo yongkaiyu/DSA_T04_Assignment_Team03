@@ -22,6 +22,23 @@ Game* GameDictionary::searchByName(std::string name) {
     return nullptr;
 }
 
+
+//Search by ID
+Game* GameDictionary::searchGame(std::string id) { 
+    int index = hashFunction(id);
+
+    Node* current = table[index];
+    while (current != nullptr) {
+        // Compare the gameID in the data struct with the search ID
+        if (current->data.gameID == id) {
+            return &(current->data); // Return the address of the game object
+        }
+        current = current->next; // Move to the next node in the chain
+    }
+    return nullptr;
+}
+
+
 void GameDictionary::addOrUpdateGame(Game g) {
     Game* existing = searchByName(g.gameName);
 
@@ -76,17 +93,37 @@ int GameDictionary::removeGame(std::string name) {
     return -1; // Return -1 if the game was not found
 }
 
-int GameDictionary::getTotalCopiesForGameByID(std::string gameID) {
+float GameDictionary::rateGame(std::string id, float rating) {
+    // Basic range check
+    if (rating < 1.0f || rating > 10.0f) return -1.0f;
+
+    Game* found = searchGame(id);
+
+    if (found != nullptr) {
+        if (found->gameAverageRating == 0.0f) {
+            found->gameAverageRating = rating;
+        }
+        else {
+            // Running average logic
+            found->gameAverageRating = (found->gameAverageRating + rating) / 2.0f;
+        }
+        return found->gameAverageRating; // Return the new value
+    }
+
+    return -1.0f; // Indicate failure (ID not found)
+}
+
+int GameDictionary::getAvailableCopiesForGameByID(std::string gameID) {
     for (int i = 0; i < TABLE_SIZE; i++) {
         Node* current = table[i];
         while (current) {
             if (current->data.gameID == gameID) {
-                return current->data.gameTotalCopies;
+                return current->data.gameAvailableCopies;
             }
             current = current->next;
         }
     }
-    return 0; // Game not found
+    return -1; // Game not found
 }
 
 bool GameDictionary::borrowGameUpdateTotalCopies(std::string gameID) {
@@ -139,6 +176,44 @@ bool GameDictionary::gameExists(std::string gameID) {
     }
     return false; // Game not found
 }
+
+void GameDictionary::displayAll() { //DISPLAYS EVERYTHING
+    for (int i = 0; i < TABLE_SIZE; i++) {
+        Node* current = table[i];
+        while (current) {
+            std::cout << "ID: " << current->data.gameID
+                      << ", Name: " << current->data.gameName
+				      << ", Min Players: " << current->data.gameMinPlayer
+				      << ", Max Players: " << current->data.gameMaxPlayer
+				      << ", Min Play Time: " << current->data.gameMinPlayTime
+				      << ", Max Play Time: " << current->data.gameMaxPlayTime
+				      << ", Year Published: " << current->data.gameYearPublished
+				      << ", Average Rating: " << std::fixed << std::setprecision(2) << current->data.gameAverageRating
+                      << ", Total Copies: " << current->data.gameTotalCopies
+                      << ", Available Copies: " << current->data.gameAvailableCopies
+                      << std::endl;
+            current = current->next;
+        }
+	}
+}
+
+void GameDictionary::displayGameDetails(std::string id) { //Displays a particular game details
+    Game* found = searchGame(id); 
+    if (found) {
+        std::cout << "\n--- Showing Details for Game ID: " << id << " ---\n";
+        std::cout << "Name: " << found->gameName
+            << "\nPlayers: " << found->gameMinPlayer << "-" << found->gameMaxPlayer
+            << "\nPlay Time: " << found->gameMinPlayTime << "-" << found->gameMaxPlayTime << " mins"
+            << "\nYear Published: " << found->gameYearPublished
+            << "\nAverage Rating: " << std::fixed << std::setprecision(2) << found->gameAverageRating
+            << "\nTotal Copies: " << found->gameTotalCopies
+            << "\nAvailable Copies: " << found->gameAvailableCopies << std::endl;
+    }
+    else {
+        std::cout << "Game with ID " << id << " not found." << std::endl;
+    }
+}
+
 
 GameDictionary::~GameDictionary() {
     for (int i = 0; i < TABLE_SIZE; i++) {

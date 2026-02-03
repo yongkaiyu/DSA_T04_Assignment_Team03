@@ -64,6 +64,22 @@ public:
 
 	bool bookingExists(string& bookingID);
 
+	bool isBookingReturned(string& bookingID);
+
+	bool isUserBookingOwner(string& bookingID, string& userID);
+
+	int countAllBookings() const;
+
+	int collectAllBookings(BookingData arr[], int max);
+
+	void displayAllSortedByGameID();
+
+	int countBookingsByUserID(const string& userID);
+
+	int collectBookingsByUserID(const string& userID, BookingData arr[], int max);
+
+	void displaySortedByBookingID(const string& userID);
+
 	// display the items in the Booking
 	void printAdminSummary();
 
