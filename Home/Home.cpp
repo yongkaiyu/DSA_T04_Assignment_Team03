@@ -189,10 +189,6 @@ void memberMenu(GameDictionary& lib,Booking* bookingSystem, string userID) {
             // display summary of games borrowed/returned (booking and users maybe)
 			bookingSystem->displaySortedByUserID(userID);
         }
-        else {
-			break;
-        }
-
         else if (choice == 4) {
             string gameID;
             float rating;
@@ -202,7 +198,7 @@ void memberMenu(GameDictionary& lib,Booking* bookingSystem, string userID) {
             cout << "Enter your rating (1-10): ";
             cin >> rating;
 
-            float newAvg = gameDict->rateGame(gameID, rating);
+            float newAvg = lib.rateGame(gameID, rating);
 
             if (newAvg != -1.0f) {
                 // We use fixed and setprecision(1) to make it look like "8.5" instead of "8.5000"
@@ -212,6 +208,10 @@ void memberMenu(GameDictionary& lib,Booking* bookingSystem, string userID) {
                 cout << "Error: Invalid ID or rating score.\n";
             }
         }
+        else {
+			break;
+        }
+
     }
 }
 
