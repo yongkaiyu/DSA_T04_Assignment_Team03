@@ -10,6 +10,7 @@
 #include "User.h"
 #include "Member.h"
 #include "Booking.h"
+#include "ActiveBookingIndex.h"
 
 using namespace std;
 
@@ -114,7 +115,7 @@ void adminMenu(Admin& admin, UserDictionary& users, GameDictionary& lib, Booking
     }
 }
 
-void memberMenu(GameDictionary& lib,Booking* bookingSystem, string userID) {
+void memberMenu(GameDictionary& lib,Booking* bookingSystem, string userID, ActiveBookingIndex* activeIndex) {
     int choice = -1;
 
     while (choice != 0) {
@@ -133,19 +134,32 @@ void memberMenu(GameDictionary& lib,Booking* bookingSystem, string userID) {
 			string gameID;
 			cout << "Enter the game ID to borrow: ";
 			cin >> gameID;
+
             if (!lib.gameExists(gameID)) {
 				cout << "The game ID does not exist.\n";
                 continue;
 			}
+
+            else if (activeIndex->hasActive(userID, gameID)) {
+                cout << "You have already borrowed this game and not returned it yet.\n";
+                continue;
+            }
+
             else if (lib.getAvailableCopiesForGameByID(gameID) == 0)
             {
                 cout << "The game has been fully booked.\n";
                 continue;
             }
             else if (lib.gameExists(gameID) && lib.getAvailableCopiesForGameByID(gameID) != 0) {
-                bookingSystem->borrowGame(userID, gameID);
+
+                string bookingID;
+
+                bookingSystem->borrowGame(userID, gameID, bookingID);
+
                 lib.borrowGameUpdateTotalCopies(gameID);
-                cout << "Game borrowed successfully.\n";
+
+				activeIndex->addActive(userID, gameID, bookingID);
+                cout << "Game borrowed successfully. Booking ID: " << bookingID << "\n";
                 continue;
             }
             else {
@@ -173,9 +187,14 @@ void memberMenu(GameDictionary& lib,Booking* bookingSystem, string userID) {
 				continue;
             }
             else if (bookingSystem->bookingExists(bookingID) && !bookingSystem->isBookingReturned(bookingID) && bookingSystem->isUserBookingOwner(bookingID,userID)) {
-                bookingSystem->returnGame(bookingID);
+
                 string gameID = bookingSystem->getGameIDByBookingID(bookingID);
+
+                bookingSystem->returnGame(bookingID);
+
                 lib.returnGameUpdateTotalCopies(gameID);
+
+				activeIndex->removeActive(userID, gameID);
                 cout << "Game returned successfully.\n";
                 continue;
             }
@@ -252,6 +271,7 @@ void viewGamesMenu(GameDictionary* gameDict) {
 int main() {
     GameDictionary lib;
     Booking bookingSystem;
+    ActiveBookingIndex activeIndex;
 
     UserDictionary users;
     Admin admin("A0001", "Admin");
@@ -271,7 +291,7 @@ int main() {
             cin >> memberID;
             cout << memberID;
             if (users.contains(memberID)) {
-                memberMenu(lib,&bookingSystem, memberID);
+                memberMenu(lib,&bookingSystem, memberID, &activeIndex);
             }
             else {
                 cout << "Member ID not found.\n";

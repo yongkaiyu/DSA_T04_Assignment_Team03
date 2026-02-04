@@ -70,7 +70,7 @@ public:
 	// pre : none
 	// post: new item is added to the Booking
 	// size of Booking is increased by 1
-	bool borrowGame(string& userID, string& gameID);
+	bool borrowGame(string& userID, string& gameID, string& bookingID);
 
 	// update an item with the specified key in the Booking
 	// pre : key must exist in the Booking
