@@ -58,7 +58,7 @@ string Booking::generateAutoID() // generates booking IDs like B1, B2, B3, ...
 	return "B" + to_string(nextBookingNumber++);
 }
 
-bool Booking::borrowGame(string& userID, string& gameID) // add a new booking
+bool Booking::borrowGame(string& userID, string& gameID, string& bookingID) // add a new booking
 {
 	// Initialize a new BookingData item
 	BookingData newItem;
@@ -69,6 +69,8 @@ bool Booking::borrowGame(string& userID, string& gameID) // add a new booking
 	newItem.gameID = gameID;
 	newItem.bookingIsReturned = false;
 	KeyType newKey = newItem.bookingID;
+
+	bookingID = newItem.bookingID; // return the generated booking ID
 
 	// Hash the key to get the index
 	int index = hash(newKey);
@@ -87,6 +89,7 @@ bool Booking::borrowGame(string& userID, string& gameID) // add a new booking
 	{
 		cout << endl;
 		Node* current = items[index];
+		// Linked list is unsorted, use sequential search
 		if (current->key == newKey)
 		{
 			return false;
@@ -116,6 +119,7 @@ bool Booking::returnGame(string& bookingID) // update booking to mark as returne
 	int index = hash(bookingID);
 
 	Node* current = items[index];
+	// Linked list is unsorted, use sequential search
 	while (current != nullptr)
 	{
 		if (current->key == bookingID)

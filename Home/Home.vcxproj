@@ -123,6 +123,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ActiveBookingIndex.cpp" />
     <ClCompile Include="Admin.cpp" />
     <ClCompile Include="Booking.cpp" />
     <ClCompile Include="Home.cpp" />
@@ -133,6 +134,7 @@
     <ClCompile Include="CSVReader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ActiveBookingIndex.h" />
     <ClInclude Include="Admin.h" />
     <ClInclude Include="Booking.h" />
     <ClInclude Include="Member.h" />
