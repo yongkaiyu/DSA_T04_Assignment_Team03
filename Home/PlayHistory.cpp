@@ -3,29 +3,30 @@
 using namespace std;
 
 PlayHistory::PlayHistory() {
-    head = nullptr;
-    playCount = 0;
+    first = nullptr;
+    playCount = 0; // initialises it to empty play history list
 }
 
 PlayHistory::~PlayHistory() {
-    PlayRecord* current = head;
+    PlayRecord* current = first;
     while (current != nullptr) {
         // delete players list
         PlayerNode* p = current->players;
         while (p != nullptr) {
-            PlayerNode* tempP = p;
+            PlayerNode* tempPlayer = p;
             p = p->next;
-            delete tempP;
+            delete tempPlayer;
         }
 
-        // delete record node
-        PlayRecord* tempR = current;
+        // delete record node (play record) itself
+        PlayRecord* tempRecord = current;
         current = current->next;
-        delete tempR;
+        delete tempRecord;
     }
-    head = nullptr;
+    first = nullptr;
 }
 
+// to generate the unique playid
 string PlayHistory::generatePlayID() {
     playCount++;
 
@@ -40,37 +41,45 @@ string PlayHistory::generatePlayID() {
     return string(id);
 }
 
+// checks if userid already exists in linked list, to prevent duplicates
 bool PlayHistory::playerExistsInList(PlayerNode* list, string userID) {
-    PlayerNode* cur = list;
-    while (cur != nullptr) {
-        if (cur->userID == userID) return true;
-        cur = cur->next;
+    PlayerNode* current = list;
+    while (current != nullptr) {
+        if (current->userID == userID) return true;
+        current = current->next;
     }
     return false;
 }
 
+// records the play of a game of a user
 bool PlayHistory::addPlay(string gameID, string gameName, string winnerID, string playerIDs[], int playerCount) {
-    if (gameID.empty() || winnerID.empty()) return false;
-    if (playerCount <= 0) return false;
+    if (gameID.empty() || winnerID.empty())
+    {
+        return false;
+    }
+    if (playerCount <= 0)
+    {
+        return false;
+    }
 
-    // build players list
+    // build the players linked list
     PlayerNode* playersHead = nullptr;
 
     for (int i = 0; i < playerCount; i++) {
         if (playerIDs[i].empty()) continue;
 
-        // avoid duplicates
+        // to avoid duplicates
         if (playerExistsInList(playersHead, playerIDs[i])) continue;
 
-        PlayerNode* newP = new PlayerNode;
-        newP->userID = playerIDs[i];
-        newP->next = playersHead;
-        playersHead = newP;
+        PlayerNode* newPlayer = new PlayerNode;
+        newPlayer->userID = playerIDs[i];
+        newPlayer->next = playersHead;
+        playersHead = newPlayer;
     }
 
-    // ensure winner is in players list
+    // ensure winner is one of the players mentioned
     if (!playerExistsInList(playersHead, winnerID)) {
-        // cleanup before returning false
+        // to clean the allocated nodes before it fails
         PlayerNode* p = playersHead;
         while (p != nullptr) {
             PlayerNode* temp = p;
@@ -80,42 +89,44 @@ bool PlayHistory::addPlay(string gameID, string gameName, string winnerID, strin
         return false;
     }
 
-    // create record
-    PlayRecord* rec = new PlayRecord;
-    rec->playID = generatePlayID();
-    rec->gameID = gameID;
-    rec->gameName = gameName;
-    rec->winnerID = winnerID;
-    rec->players = playersHead;
-    rec->next = head;
-    head = rec;
+    // creating and storing the record
+    PlayRecord* record = new PlayRecord;
+    record->playID = generatePlayID();
+    record->gameID = gameID;
+    record->gameName = gameName;
+    record->winnerID = winnerID;
+    record->players = playersHead;
+    record->next = first;
+    first = record;
 
-    cout << "Play recorded. PlayID = " << rec->playID << "\n";
+    cout << "Play recorded. PlayID = " << record->playID << "\n";
     return true;
 }
 
+// to display the play recorded by user after entering all the information
 void PlayHistory::printAll(UserDictionary& users) {
-    if (head == nullptr) {
+    if (first == nullptr) {
         cout << "No play records.\n";
         return;
     }
 
-    PlayRecord* cur = head;
-    while (cur != nullptr) {
-        cout << "PlayID: " << cur->playID << "\n";
-        cout << "Game: " << cur->gameID << " - " << cur->gameName << "\n";
+    PlayRecord* current = first;
+    while (current != nullptr) {
+        cout << "PlayID: " << current->playID << "\n";
+        cout << "Game: " << current->gameID << " - " << current->gameName << "\n";
 
-        // Winner: ID + name
-        User* w = users.getUser(cur->winnerID);
+        // Displaying WinnerID + name
+        User* w = users.getUser(current->winnerID);
         if (w != nullptr) {
-            cout << "Winner: " << cur->winnerID << " (" << w->getUserName() << ")\n";
+            cout << "Winner: " << current->winnerID << " (" << w->getUserName() << ")\n";
         }
         else {
-            cout << "Winner: " << cur->winnerID << " (Unknown)\n";
+            cout << "Winner: " << current->winnerID << " (Unknown)\n";
         }
 
+        // to display all players
         cout << "Players: ";
-        PlayerNode* p = cur->players;
+        PlayerNode* p = current->players;
         while (p != nullptr) {
             User* u = users.getUser(p->userID);
             if (u != nullptr) {
@@ -130,55 +141,6 @@ void PlayHistory::printAll(UserDictionary& users) {
         }
         cout << "\n--------------------------\n";
 
-        cur = cur->next;
+        current = current->next;
     }
-}
-
-void PlayHistory::printByUserID(string userID, UserDictionary& users) {
-    if (head == nullptr) {
-        cout << "No play records.\n";
-        return;
-    }
-
-    int count = 0;
-    PlayRecord* cur = head;
-    while (cur != nullptr) {
-        if (playerExistsInList(cur->players, userID)) {
-            count++;
-            cout << "PlayID: " << cur->playID
-                << " | GameID: " << cur->gameID
-                << " | Winner: " << cur->winnerID << "\n";
-        }
-        cur = cur->next;
-    }
-
-    if (count == 0) cout << "No plays found for user " << userID << ".\n";
-}
-
-void PlayHistory::printByGameID(string gameID, UserDictionary& users) {
-    if (head == nullptr) {
-        cout << "No play records.\n";
-        return;
-    }
-
-    int count = 0;
-    PlayRecord* cur = head;
-    while (cur != nullptr) {
-        if (cur->gameID == gameID) {
-            count++;
-            cout << "PlayID: " << cur->playID
-                << " | Winner: " << cur->winnerID << " | Players: ";
-
-            PlayerNode* p = cur->players;
-            while (p != nullptr) {
-                cout << p->userID;
-                if (p->next != nullptr) cout << ", ";
-                p = p->next;
-            }
-            cout << "\n";
-        }
-        cur = cur->next;
-    }
-
-    if (count == 0) cout << "No plays found for game " << gameID << ".\n";
 }

@@ -243,7 +243,7 @@ void memberMenu(GameDictionary& lib,Booking* bookingSystem, string userID, Activ
                 return;
             }
 
-            cout << "Selected: " << g->gameID << " - " << g->gameName << "\n";
+            //cout << "Selected: " << g->gameID << " - " << g->gameName << "\n";
 
             int n;
             cout << "How many players? ";
@@ -278,22 +278,6 @@ void memberMenu(GameDictionary& lib,Booking* bookingSystem, string userID, Activ
                 plays.printAll(users);
             }
             else cout << "Failed to record play (winner must be among players).\n";
-        }
-        else if (choice == 6) {
-            //plays.printByUserID(userID);
-        }
-        else if (choice == 7) {
-            /*string gameName;
-            cout << "Enter game name: ";
-            getline(cin >> ws, gameName);
-
-            Game* g = lib.searchByName(gameName);
-            if (g == nullptr) {
-                cout << "Game not found.\n";
-            }
-            else {
-                plays.printByGameID(g->gameID);
-            }*/
         }
         else {
 			break;

@@ -20,25 +20,22 @@ private:
         PlayRecord* next;
     };
 
-    PlayRecord* head;
+    PlayRecord* first;
     int playCount;
 
+    // generates the unique playid
     string generatePlayID();
+
+    // checks if a player already exists in the player list
     bool playerExistsInList(PlayerNode* list, string userID);
 
 public:
     PlayHistory();
     ~PlayHistory();
 
-    // Adding a play record
+    // Adding a play record using game id, game name, the winner's id. a string to store all the participants
     bool addPlay(string gameID, string gameName, string winnerID, string playerIDs[], int playerCount);
 
-    // Print all plays
+    // Print all recorded plays
     void printAll(UserDictionary& users);
-
-    // Print plays for a specific member
-    void printByUserID(string userID, UserDictionary& users);
-
-    // Print plays for a specific game
-    void printByGameID(string gameID, UserDictionary& users);
 };
