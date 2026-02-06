@@ -256,6 +256,8 @@ int main() {
     UserDictionary users;
     Admin admin("A0001", "Admin");
 
+    loadGamesFromCSV("games.csv", lib); // Load data from CSV into the dictionary
+
     while (true) {
         int roleChoice = -1;
         cout << "Select Role:\n1) Admin\n2) Member\n3) View Games\nChoose: ";
