@@ -17,12 +17,12 @@ struct Game {
     Review* reviewsHead = nullptr; // Pointer to the list of reviews for this gam
 };
 
-struct Review {
+/*struct Review {
     std::string memberID;
     std::string comment;
     float rating;
     Review* next; // To form a linked list of reviews
-};
+};*/
 
 class GameDictionary {
 private:
@@ -67,11 +67,11 @@ public:
     void displayGameDetails(std::string id);
 
     // Filter and sort logic
-    void displayFilteredGames(int players, std::string sortBy);
+    //void displayFilteredGames(int players, std::string sortBy);
 
     // Adds a review to a specific game
-    bool addReview(std::string gameID, std::string memberID, std::string comment, float rating);
+    //bool addReview(std::string gameID, std::string memberID, std::string comment, float rating);
 
     // Displays all reviews for a specific game
-    void displayReviews(std::string gameID);
+    //void displayReviews(std::string gameID);
 };
