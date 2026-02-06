@@ -1,4 +1,4 @@
-#include "Games.h"
+﻿#include "Games.h"
 #include <iostream>
 #include <iomanip>
 
@@ -39,26 +39,48 @@ Game* GameDictionary::searchGame(std::string id) {
 }
 
 
+//void GameDictionary::addOrUpdateGame(Game g) {
+//    Game* existing = searchByName(g.gameName);
+//
+//    if (existing) {
+//        // If game exists, just increase the copy counts
+//        existing->gameTotalCopies++;
+//        existing->gameAvailableCopies++;
+//    }
+//    else {
+//        // New game: Generate an ID like G001, G002...
+//        gameCount++;
+//        g.gameID = "G" + std::to_string(gameCount);
+//        g.gameTotalCopies = 1;
+//        g.gameAvailableCopies = 1;
+//
+//        int index = hashFunction(g.gameName);
+//        Node* newNode = new Node{ g.gameName, g, table[index] };
+//        table[index] = newNode;
+//    }
+//}
+
 void GameDictionary::addOrUpdateGame(Game g) {
     Game* existing = searchByName(g.gameName);
 
     if (existing) {
-        // If game exists, just increase the copy counts
+        // Game already exists → increase copy counts
         existing->gameTotalCopies++;
         existing->gameAvailableCopies++;
+        return;
     }
-    else {
-        // New game: Generate an ID like G001, G002...
-        gameCount++;
-        g.gameID = "G" + std::to_string(gameCount);
-        g.gameTotalCopies = 1;
-        g.gameAvailableCopies = 1;
 
-        int index = hashFunction(g.gameName);
-        Node* newNode = new Node{ g.gameName, g, table[index] };
-        table[index] = newNode;
-    }
+    // New game → generate ID
+    gameCount++;
+    g.gameID = "G" + std::to_string(gameCount);
+    g.gameTotalCopies = 1;
+    g.gameAvailableCopies = 1;
+
+    int index = hashFunction(g.gameName);
+    Node* newNode = new Node{ g.gameName, g, table[index] };
+    table[index] = newNode;
 }
+
 
 // Returns the number of copies left, or -1 if the game was not found
 int GameDictionary::removeGame(std::string name) {
@@ -225,3 +247,48 @@ GameDictionary::~GameDictionary() {
         }
     }
 }
+
+/*bool GameDictionary::addReview(std::string gameID, std::string memberID, std::string comment, float rating) {
+    Game* found = searchGame(gameID);
+    if (found) {
+        // 1. Create a new Review node
+        Review* newReview = new Review;
+        newReview->memberID = memberID;
+        newReview->comment = comment;
+        newReview->rating = rating;
+
+        // 2. Insert at the head of the reviews list (simplest way)
+        newReview->next = found->reviewsHead;
+        found->reviewsHead = newReview;
+
+        // 3. Automatically update the game's average rating
+        rateGameByID(gameID, rating);
+
+        return true;
+    }
+    return false;
+}
+
+void GameDictionary::displayReviews(std::string gameID) {
+    Game* found = searchGame(gameID);
+    if (found) {
+        std::cout << "\n--- Reviews for " << found->gameName << " ---\n";
+        Review* current = found->reviewsHead;
+
+        if (!current) {
+            std::cout << "No reviews yet for this game.\n";
+            return;
+        }
+
+        while (current) {
+            std::cout << "Member: " << current->memberID << "\n";
+            std::cout << "Rating: " << current->rating << "/10\n";
+            std::cout << "Review: " << current->comment << "\n";
+            std::cout << "---------------------------\n";
+            current = current->next;
+        }
+    }
+    else {
+        std::cout << "Game ID not found.\n";
+    }
+}*/

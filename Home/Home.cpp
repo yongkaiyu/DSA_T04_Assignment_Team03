@@ -328,6 +328,8 @@ int main() {
     UserDictionary users;
     Admin admin("A001", "Admin");
 
+    loadGamesFromCSV("games.csv", lib); // Load data from CSV into the dictionary
+
     PlayHistory plays;
 
     while (true) {
