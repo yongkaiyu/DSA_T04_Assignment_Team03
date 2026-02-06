@@ -138,90 +138,183 @@ void memberMenu(GameDictionary& lib,Booking* bookingSystem, string userID, Activ
             string keyword;
             getline(cin, keyword);
 
-            const int MAX_RESULTS = 50;
-            Game matches[MAX_RESULTS];
+            const int PAGE_SIZE = 50;
+            int offset = 0;
 
-            int found = lib.searchByPrefix(keyword, matches, MAX_RESULTS);
-
-            if (found == 0) {
-                cout << "No games found starting with \"" << keyword << "\".\n";
-                continue;
-            }
-
-            lib.displayGameMatches(matches, found);
-
-            // borrow game (booking)
-			string gameID;
-			cout << "Enter the game ID to borrow: ";
-			cin >> gameID;
-
-            if (!lib.gameExists(gameID)) {
-				cout << "The game ID does not exist.\n";
-                continue;
-			}
-
-            else if (activeIndex->hasActive(userID, gameID)) {
-                cout << "You have already borrowed this game and not returned it yet.\n";
-                continue;
-            }
-
-            else if (lib.getAvailableCopiesForGameByID(gameID) == 0)
+            while (true)
             {
-                cout << "The game has been fully booked.\n";
-                continue;
+                Game matches[PAGE_SIZE];
+                int found = lib.searchByPrefixPaged(keyword, matches, PAGE_SIZE, offset);
+
+                if (found == 0)
+                {
+                    if (offset == 0)
+                        cout << "No games found starting with \"" << keyword << "\".\n";
+                    else
+                        cout << "No more results.\n";
+                    break; // go back to member menu
+                }
+
+                cout << "\nShowing results " << (offset + 1)
+                    << " - " << (offset + found) << "\n";
+
+                lib.displayGameMatches(matches, found);
+
+                cout << "\nOptions:\n";
+                cout << "[m] Show more\n";
+                cout << "[b] Borrow a game\n";
+                cout << "[g] Go back\n";
+				cout << "[e] Exit\n";
+                cout << "Choose: ";
+
+                char opt;
+                cin >> opt;
+
+                if (opt == 'm')
+                {
+                    offset += found; // next page
+                    continue;
+                }
+                else if (opt == 'g')
+                {
+                    break; // exit borrow flow
+                }
+                else if (opt == 'e')
+                {
+                    choice = 0; // exit member menu
+                    break;
+                }
+                else if (opt == 'b')
+                {
+                    string gameID;
+                    cout << "Enter the game ID to borrow: ";
+                    cin >> gameID;
+
+                    if (!lib.gameExists(gameID)) {
+                        cout << "The game ID does not exist.\n";
+                        continue;
+                    }
+                    if (activeIndex->hasActive(userID, gameID)) {
+                        cout << "You have already borrowed this game and not returned it yet.\n";
+                        continue;
+                    }
+                    if (lib.getAvailableCopiesForGameByID(gameID) == 0) {
+                        cout << "The game has been fully booked.\n";
+                        continue;
+                    }
+
+                    string bookingID;
+                    bool ok = bookingSystem->borrowGame(userID, gameID, bookingID);
+                    if (!ok) {
+                        cout << "Borrow failed.\n";
+                        continue;
+                    }
+
+                    lib.borrowGameUpdateTotalCopies(gameID);
+                    activeIndex->addActive(userID, gameID, bookingID);
+
+                    cout << "Game borrowed successfully. Booking ID: " << bookingID << "\n";
+                    break; // success -> exit borrow flow
+                }
+                else
+                {
+                    cout << "Invalid option.\n";
+                }
             }
-            else if (lib.gameExists(gameID) && lib.getAvailableCopiesForGameByID(gameID) != 0) {
 
-                string bookingID;
-
-                bookingSystem->borrowGame(userID, gameID, bookingID);
-
-                lib.borrowGameUpdateTotalCopies(gameID);
-
-				activeIndex->addActive(userID, gameID, bookingID);
-                cout << "Game borrowed successfully. Booking ID: " << bookingID << "\n";
-                continue;
-            }
-            else {
-                cout << "An unexpected error occurred.\n";
-                continue;
-			}
+            continue; // go back to member menu loop
 			
         }
         else if (choice == 2) {
-            bookingSystem->displaySortedByUserID(userID);
-            // return game (booking)
-			string bookingID;
-			cout << "Enter the booking ID to return: ";
-			cin >> bookingID;
-            if (!bookingSystem->bookingExists(bookingID)) {
-                cout << "The booking ID does not exist.\n";
-                continue;
-			}
-            else if (bookingSystem->isBookingReturned(bookingID)) {
-                cout << "The game has already been returned.\n";
-                continue;
-            }
-            else if (!bookingSystem->isUserBookingOwner(bookingID, userID)) {
-                cout << "You are not the owner of this booking.\n";
-				continue;
-            }
-            else if (bookingSystem->bookingExists(bookingID) && !bookingSystem->isBookingReturned(bookingID) && bookingSystem->isUserBookingOwner(bookingID,userID)) {
+            cout << "Enter keyword to search your bookings (game name): ";
+            cin.ignore();
+            string keyword;
+            getline(cin, keyword);
 
-                string gameID = bookingSystem->getGameIDByBookingID(bookingID);
+            const int PAGE_SIZE = 50;
+            int offset = 0;
 
-                bookingSystem->returnGame(bookingID);
+            while (true)
+            {
+                Game matches[PAGE_SIZE];
+                int found = lib.searchByPrefixPaged(keyword, matches, PAGE_SIZE, offset);
 
-                lib.returnGameUpdateTotalCopies(gameID);
+                if (found == 0)
+                {
+                    if (offset == 0)
+                        cout << "No games found starting with \"" << keyword << "\".\n";
+                    else
+                        cout << "No more results.\n";
+                    break; // go back to member menu
+                }
 
-				activeIndex->removeActive(userID, gameID);
-                cout << "Game returned successfully.\n";
-                continue;
+                cout << "\nShowing results " << (offset + 1)
+                    << " - " << (offset + found) << "\n";
+
+                cout << "\nOptions:\n";
+                cout << "[m] Show more\n";
+                cout << "[r] Return a game\n";
+                cout << "[g] Go back\n";
+                cout << "[e] Exit\n";
+                cout << "Choose: ";
+
+                char opt;
+                cin >> opt;
+
+                if (opt == 'm')
+                {
+                    offset += found; // next page
+                    continue;
+                }
+                else if (opt == 'g')
+                {
+                    break; // back to member menu
+                }
+                else if (opt == 'e')
+                {
+                    choice = 0; // exit member menu
+                    break;
+                }
+                else if (opt == 'r')
+                {
+                    string bookingID;
+                    cout << "Enter the booking ID to return: ";
+                    cin >> bookingID;
+
+                    if (!bookingSystem->bookingExists(bookingID)) {
+                        cout << "The booking ID does not exist.\n";
+                        continue;
+                    }
+                    if (bookingSystem->isBookingReturned(bookingID)) {
+                        cout << "The game has already been returned.\n";
+                        continue;
+                    }
+                    if (!bookingSystem->isUserBookingOwner(bookingID, userID)) {
+                        cout << "You are not the owner of this booking.\n";
+                        continue;
+                    }
+
+                    string gameID = bookingSystem->getGameIDByBookingID(bookingID);
+
+                    bool ok = bookingSystem->returnGame(bookingID);
+                    if (!ok) {
+                        cout << "Return failed.\n";
+                        continue;
+                    }
+
+                    lib.returnGameUpdateTotalCopies(gameID);
+                    activeIndex->removeActive(userID, gameID);
+
+                    cout << "Game returned successfully.\n";
+                    break; // after return, exit this return flow back to member menu
+                }
+                else
+                {
+                    cout << "Invalid option.\n";
+                }
             }
-            else {
-                cout << "An unexpected error occurred.\n";
-                continue;
-            }
+
+            continue;
 			
         }
         else if (choice == 3) {

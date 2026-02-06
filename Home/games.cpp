@@ -60,16 +60,26 @@ Game* GameDictionary::searchGame(std::string id) {
 //    }
 //}
 
-bool startsWith(const std::string& s, const std::string& prefix)
+static char lowerChar(char c)
 {
-    if (prefix.size() > s.size()) return false;
+    if (c >= 'A' && c <= 'Z') return c - 'A' + 'a';
+    return c;
+}
+
+static bool startsWithIgnoreCase(const std::string& text, const std::string& prefix)
+{
+    if (prefix.size() > text.size()) return false;
     for (size_t i = 0; i < prefix.size(); i++)
-        if (s[i] != prefix[i]) return false;
+        if (lowerChar(text[i]) != lowerChar(prefix[i])) return false;
     return true;
 }
 
-int GameDictionary::searchByPrefix(const std::string& prefix, Game results[], int max) const
+int GameDictionary::searchByPrefixPaged(const std::string& prefix, Game results[], int max, int startIndex) const
 {
+    if (max <= 0 || startIndex < 0) return 0;
+    if (prefix.empty()) return 0;
+
+    int skipped = 0;
     int count = 0;
 
     for (int i = 0; i < TABLE_SIZE && count < max; i++)
@@ -77,9 +87,10 @@ int GameDictionary::searchByPrefix(const std::string& prefix, Game results[], in
         Node* cur = table[i];
         while (cur != nullptr && count < max)
         {
-            if (startsWith(cur->data.gameName, prefix))
+            if (startsWithIgnoreCase(cur->data.gameName, prefix))
             {
-                results[count++] = cur->data; // copy Game
+                if (skipped < startIndex) skipped++;
+                else results[count++] = cur->data;
             }
             cur = cur->next;
         }
