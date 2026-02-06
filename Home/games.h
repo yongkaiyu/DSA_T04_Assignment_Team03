@@ -47,7 +47,7 @@ public:
 
     Game* searchGame(std::string id);
 
-    int searchByPrefix(const std::string& prefix, Game results[], int maxResults) const;
+    int searchByPrefixPaged(const std::string& prefix, Game results[], int maxResults, int startIndex) const;
 
     void displayGameMatches(const Game games[], int count) const;
 
