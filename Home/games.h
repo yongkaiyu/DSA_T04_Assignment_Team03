@@ -45,7 +45,7 @@ public:
     void addOrUpdateGame(Game g);
     Game* searchByName(std::string name);
 
-    Game* searchGame(std::string id);
+    Game* searchGame(std::string id) const;
 
     int searchByPrefixPaged(const std::string& prefix, Game results[], int maxResults, int startIndex) const;
 

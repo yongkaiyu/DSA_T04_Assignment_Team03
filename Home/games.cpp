@@ -23,17 +23,20 @@ Game* GameDictionary::searchByName(std::string name) {
 }
 
 
-//Search by ID
-Game* GameDictionary::searchGame(std::string id) { 
-    int index = hashFunction(id);
-
-    Node* current = table[index];
-    while (current != nullptr) {
-        // Compare the gameID in the data struct with the search ID
-        if (current->data.gameID == id) {
-            return &(current->data); // Return the address of the game object
+//Search Game by ID
+Game* GameDictionary::searchGame(std::string id) const
+{
+    for (int i = 0; i < TABLE_SIZE; i++)
+    {
+        Node* current = table[i];
+        while (current != nullptr)
+        {
+            if (current->data.gameID == id)
+            {
+                return &(current->data);
+            }
+            current = current->next;
         }
-        current = current->next; // Move to the next node in the chain
     }
     return nullptr;
 }

@@ -42,6 +42,9 @@ struct Node
 	Group: Team3
 	Features: Hash Table with Separate Chaining, with BookingData as data item.
 */
+
+class GameDictionary; // forward declaration
+
 class Booking
 {
 private:
@@ -87,6 +90,18 @@ public:
 	// return true if updated successfully; otherwise returns false
 	// size of Booking is the same
 	bool returnGame(string& bookingID);
+
+	// count bookings by a specific user ID and keyword in game name
+	// pre : none
+	// post: none
+	// input params: userID - ID of the user, keyword - keyword to search in game names, lib - reference to the GameDictionary
+	// return the number of bookings made by the specified user ID with game names containing the keyword
+	int collectBookingsByUserKeywordPaged(const string& userID,
+		const string& keyword,
+		const GameDictionary& lib,
+		BookingData results[],
+		int max,
+		int startIndex) const;
 
 	// get the game ID associated with a booking ID
 	// pre : bookingID must exist in the Booking
