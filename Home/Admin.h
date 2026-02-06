@@ -9,6 +9,7 @@ class Admin : public User {
 private:
 	static int memberCount;
 	string generateAutoID();
+	string adminID;
 public:
 	Admin(string UserID, string userName);
 

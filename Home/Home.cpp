@@ -326,7 +326,7 @@ int main() {
     ActiveBookingIndex activeIndex;
 
     UserDictionary users;
-    Admin admin("A0001", "Admin");
+    Admin admin("A001", "Admin");
 
     PlayHistory plays;
 
@@ -336,7 +336,15 @@ int main() {
         cin >> roleChoice;
         if (roleChoice == 1)
         {
-            adminMenu(admin, users, lib, &bookingSystem);
+            string adminID;
+            cout << "Enter Admin ID: ";
+            cin >> adminID;
+            if (adminID == "A001") {
+                adminMenu(admin, users, lib, &bookingSystem);
+            }
+            else {
+                cout << "Admin ID not found.\n";
+            }
         }
         else if (roleChoice == 2)
         {
@@ -366,7 +374,7 @@ int main() {
         }
     }
 
-	//loadGamesFromCSV("games.csv", lib); // Load data from CSV into the dictionary
+	loadGamesFromCSV("games.csv", lib); // Load data from CSV into the dictionary
 
     //std::cout << "Welcome to NPTTGC Management System" << std::endl;
     
