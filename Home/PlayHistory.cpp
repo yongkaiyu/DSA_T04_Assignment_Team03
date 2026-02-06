@@ -12,11 +12,23 @@ using namespace std;
     Data Structures: Linked list of play records; linked list of players per record
 */
 
+/*
+Initialises PlayHistory
+Creates an empty play history linked list
+Input params: none
+Return value: none
+*/
 PlayHistory::PlayHistory() {
     first = nullptr;
     playCount = 0; // initialises it to empty play history list
 }
 
+/*
+Destroys PlayHistory
+Frees all memory used by the play records linked list and the players linked list inside each record
+Input params: none
+Return value: none
+*/
 PlayHistory::~PlayHistory() {
     PlayRecord* current = first;
     while (current != nullptr) {
@@ -177,4 +189,87 @@ void PlayHistory::printAll(UserDictionary& users) {
 
         current = current->next;
     }
+}
+
+/*
+Print all recorded plays after sorting them by game name
+pre: none
+post: recorded plays are displayed after sorting
+input params: users- Reference to UserDictionary for ID
+Return value: none
+*/
+void PlayHistory::printSortedByGame(UserDictionary& users) {
+    if (first == nullptr) {
+        cout << "No play records.\n";
+        return;
+    }
+
+    // Counting the records
+    int count = 0;
+    PlayRecord* current = first;
+    while (current != nullptr) {
+        count++;
+        current = current->next;
+    }
+
+    // Copying pointers into an array
+    PlayRecord* records = new PlayRecord[count];
+    current = first;
+    for (int i = 0; i < count; i++) {
+        records[i] = *current;   // copy the play record
+        current = current->next;
+    }
+
+    // Selection sort by gameName (ascending)
+    for (int i = 0; i < count - 1; i++) {
+        int minIndex = i;
+
+        for (int j = i + 1; j < count; j++) {
+            if (records[j].gameName < records[minIndex].gameName) {
+                minIndex = j;
+            }
+        }
+
+        if (minIndex != i) {
+            PlayRecord temp = records[i];
+            records[i] = records[minIndex];
+            records[minIndex] = temp;
+        }
+    }
+
+    // Printing in sorted order
+    for (int i = 0; i < count; i++) {
+        cout << "PlayID: " << records[i].playID << "\n";
+        cout << "Game: " << records[i].gameID
+            << " - " << records[i].gameName << "\n";
+
+        // Winner
+        User* w = users.getUser(records[i].winnerID);
+        if (w != nullptr) {
+            cout << "Winner: " << records[i].winnerID
+                << " (" << w->getUserName() << ")\n";
+        }
+        else {
+            cout << "Winner: " << records[i].winnerID << " (Unknown)\n";
+        }
+
+        // Players
+        cout << "Players: ";
+        PlayerNode* p = records[i].players;
+        while (p != nullptr) {
+            User* u = users.getUser(p->userID);
+            if (u != nullptr) {
+                cout << p->userID << " (" << u->getUserName() << ")";
+            }
+            else {
+                cout << p->userID << " (Unknown)";
+            }
+
+            if (p->next != nullptr) cout << ", ";
+            p = p->next;
+        }
+
+        cout << "\n--------------------------\n";
+    }
+    delete[] records;
 }

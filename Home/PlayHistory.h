@@ -73,4 +73,13 @@ public:
     Return value: none
     */
     void printAll(UserDictionary& users);
+
+    /*
+    Print all recorded plays after sorting them by game name
+    pre: none
+    post: recorded plays are displayed after sorting
+    input params: users- Reference to UserDictionary for ID
+    Return value: none
+    */
+    void printSortedByGame(UserDictionary& users);
 };

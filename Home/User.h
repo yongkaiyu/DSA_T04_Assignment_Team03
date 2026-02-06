@@ -4,9 +4,18 @@
 
 using namespace std;
 
+/*
+	Team 3
+	Team Member who did this feature:
+	Daniel S10258472D
+
+	Feature Highlight:
+	Base class for the system user, stores userid, username and user role, parent class for Admin and Member
+*/
+
 class User {
 public:
-	enum class Role {
+	enum class Role { // defines the type of user in the system like admin and member
 		Admin,
 		Member
 	};
@@ -17,15 +26,15 @@ protected:
 	Role userRole;
 
 public:
-	User();
+	User(); // constructor
 
-	virtual ~User();
+	virtual ~User(); // destructor
 
-	User(string userID, string userName, Role userRole);
+	User(string userID, string userName, Role userRole); // constructor with user id, username and user role
 
-	string getUserID();
-	string getUserName();
-	Role getRole();
+	string getUserID(); // gets user id
+	string getUserName(); // gets user name
+	Role getRole(); //gets user's role
 };
 
 
