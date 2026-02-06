@@ -5,7 +5,7 @@
 #include <sstream>
 #include <iostream>
 
-void loadGamesFromCSV(std::string filename, GameDictionary& dict) {
+/*void loadGamesFromCSV(std::string filename, GameDictionary& dict) {
     std::ifstream file(filename);
     if (!file.is_open()) {
         std::cerr << "Error: Could not find " << filename << std::endl;
@@ -40,5 +40,43 @@ void loadGamesFromCSV(std::string filename, GameDictionary& dict) {
         // Note: gameID and copy counts are handled inside addOrUpdateGame
         dict.addOrUpdateGame(g);
     }
+    file.close();
+}*/
+
+void loadGamesFromCSV(const std::string& filename, GameDictionary& dict) {
+    std::ifstream file(filename);
+    if (!file.is_open()) {
+        std::cerr << "Error: Could not open " << filename << std::endl;
+        return;
+    }
+
+    std::string line;
+    std::getline(file, line); // Skip header row
+
+    while (std::getline(file, line)) {
+        std::stringstream ss(line);
+        std::string fields[6];
+        std::string cell;
+        int i = 0;
+
+        while (std::getline(ss, cell, ',') && i < 6) {
+            fields[i++] = cell;
+        }
+
+        if (i < 6) continue; // Skip incomplete rows
+
+        Game g;
+        g.gameName = fields[0];
+        g.gameMinPlayer = std::stoi(fields[1]);
+        g.gameMaxPlayer = std::stoi(fields[2]);
+        g.gameMaxPlayTime = std::stoi(fields[3]);
+        g.gameMinPlayTime = std::stoi(fields[4]);
+        g.gameYearPublished = std::stoi(fields[5]);
+        g.gameAverageRating = 0.0f; // Not in CSV
+
+        // Let dictionary handle duplicates + ID generation
+        dict.addOrUpdateGame(g);
+    }
+
     file.close();
 }
