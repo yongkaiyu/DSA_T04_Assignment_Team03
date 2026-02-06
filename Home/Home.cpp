@@ -10,6 +10,8 @@
 #include "User.h"
 #include "Member.h"
 #include "Booking.h"
+#include "ActiveBookingIndex.h"
+#include "PlayHistory.h"
 
 using namespace std;
 
@@ -114,7 +116,7 @@ void adminMenu(Admin& admin, UserDictionary& users, GameDictionary& lib, Booking
     }
 }
 
-void memberMenu(GameDictionary& lib,Booking* bookingSystem, string userID) {
+void memberMenu(GameDictionary& lib,Booking* bookingSystem, string userID, ActiveBookingIndex* activeIndex, UserDictionary& users, PlayHistory& plays) {
     int choice = -1;
 
     while (choice != 0) {
@@ -123,6 +125,9 @@ void memberMenu(GameDictionary& lib,Booking* bookingSystem, string userID) {
         cout << "2) Return a board game\n";
         cout << "3) Display summary of games borrowed/returned\n";
 		cout << "4) Rate a board game\n";
+        cout << "5) Record a game play\n";
+        cout << "6) View my play history\n";
+        cout << "7) View play history for a game\n";
         cout << "0) Exit\n";
         cout << "Choose: ";
         cin >> choice;
@@ -133,19 +138,32 @@ void memberMenu(GameDictionary& lib,Booking* bookingSystem, string userID) {
 			string gameID;
 			cout << "Enter the game ID to borrow: ";
 			cin >> gameID;
+
             if (!lib.gameExists(gameID)) {
 				cout << "The game ID does not exist.\n";
                 continue;
 			}
+
+            else if (activeIndex->hasActive(userID, gameID)) {
+                cout << "You have already borrowed this game and not returned it yet.\n";
+                continue;
+            }
+
             else if (lib.getAvailableCopiesForGameByID(gameID) == 0)
             {
                 cout << "The game has been fully booked.\n";
                 continue;
             }
             else if (lib.gameExists(gameID) && lib.getAvailableCopiesForGameByID(gameID) != 0) {
-                bookingSystem->borrowGame(userID, gameID);
+
+                string bookingID;
+
+                bookingSystem->borrowGame(userID, gameID, bookingID);
+
                 lib.borrowGameUpdateTotalCopies(gameID);
-                cout << "Game borrowed successfully.\n";
+
+				activeIndex->addActive(userID, gameID, bookingID);
+                cout << "Game borrowed successfully. Booking ID: " << bookingID << "\n";
                 continue;
             }
             else {
@@ -155,7 +173,7 @@ void memberMenu(GameDictionary& lib,Booking* bookingSystem, string userID) {
 			
         }
         else if (choice == 2) {
-            bookingSystem->printMemberSummary(userID);
+            bookingSystem->displaySortedByUserID(userID);
             // return game (booking)
 			string bookingID;
 			cout << "Enter the booking ID to return: ";
@@ -173,9 +191,14 @@ void memberMenu(GameDictionary& lib,Booking* bookingSystem, string userID) {
 				continue;
             }
             else if (bookingSystem->bookingExists(bookingID) && !bookingSystem->isBookingReturned(bookingID) && bookingSystem->isUserBookingOwner(bookingID,userID)) {
-                bookingSystem->returnGame(bookingID);
+
                 string gameID = bookingSystem->getGameIDByBookingID(bookingID);
+
+                bookingSystem->returnGame(bookingID);
+
                 lib.returnGameUpdateTotalCopies(gameID);
+
+				activeIndex->removeActive(userID, gameID);
                 cout << "Game returned successfully.\n";
                 continue;
             }
@@ -187,12 +210,8 @@ void memberMenu(GameDictionary& lib,Booking* bookingSystem, string userID) {
         }
         else if (choice == 3) {
             // display summary of games borrowed/returned (booking and users maybe)
-			bookingSystem->displaySortedByBookingID(userID);
+			bookingSystem->displaySortedByUserID(userID);
         }
-        else {
-			break;
-        }
-
         else if (choice == 4) {
             string gameID;
             float rating;
@@ -202,7 +221,7 @@ void memberMenu(GameDictionary& lib,Booking* bookingSystem, string userID) {
             cout << "Enter your rating (1-10): ";
             cin >> rating;
 
-            float newAvg = gameDict->rateGame(gameID, rating);
+            float newAvg = lib.rateGame(gameID, rating);
 
             if (newAvg != -1.0f) {
                 // We use fixed and setprecision(1) to make it look like "8.5" instead of "8.5000"
@@ -212,51 +231,106 @@ void memberMenu(GameDictionary& lib,Booking* bookingSystem, string userID) {
                 cout << "Error: Invalid ID or rating score.\n";
             }
         }
+        else if (choice == 5) {
+            
+            string gameName;
+            cout << "Enter game name: ";
+            getline(cin >> ws, gameName);
+
+            Game* g = lib.searchByName(gameName);
+            if (g == nullptr) {
+                cout << "Game not found.\n";
+                return;
+            }
+
+            //cout << "Selected: " << g->gameID << " - " << g->gameName << "\n";
+
+            int n;
+            cout << "How many players? ";
+            cin >> n;
+
+            if (n <= 0 || n > 20) {
+                cout << "Invalid number of players.\n";
+                return;
+            }
+
+            string playerIDs[20];
+
+            for (int i = 0; i < n; i++) {
+                cout << "Enter Player " << (i + 1) << " MemberID: ";
+                cin >> playerIDs[i];
+
+                if (!users.contains(playerIDs[i])) {
+                    cout << "MemberID not found: " << playerIDs[i] << "\n";
+                    return;
+                }
+            }
+
+            string winnerID;
+            cout << "Enter Winner MemberID: ";
+            cin >> winnerID;
+
+            bool ok = plays.addPlay(g->gameID, g->gameName, winnerID, playerIDs, n);
+            if (ok){
+                cout << "Play recorded successfully!\n";
+                cout << "\n";
+                cout << "\n---------------------------\n";
+                plays.printAll(users);
+            }
+            else cout << "Failed to record play (winner must be among players).\n";
+        }
+        else {
+			break;
+        }
+
     }
 }
 
-void viewGamesMenu(GameDictionary* gameDict) {
-    int choice = -1;
-    while (choice != 0) {
-        cout << "\n=== VIEW GAMES MENU ===\n";
-        cout << "1) Display details of a particular game\n";
-        cout << "2) List games by number of players\n";
-        cout << "0) Back to Main Menu\n";
-        cout << "Choose: ";
-        cin >> choice;
-
-        if (choice == 1) {
-            string id;
-            cout << "Enter Game ID: ";
-            cin >> id;
-            gameDict->displayGameDetails(id);
-        }
-        else if (choice == 2) {
-            int p;
-            int sortChoice;
-            string sortType = "none";
-
-            cout << "Enter number of players: ";
-            cin >> p;
-            cout << "Sort by: 1) Year of Publication  2) Average Rating  3) None: ";
-            cin >> sortChoice;
-
-            if (sortChoice == 1) sortType = "year";
-            else if (sortChoice == 2) sortType = "rating";
-
-            gameDict->displayFilteredGames(p, sortType);
-        }
-    }
-}
+//void viewGamesMenu(GameDictionary* gameDict) {
+//    int choice = -1;
+//    while (choice != 0) {
+//        cout << "\n=== VIEW GAMES MENU ===\n";
+//        cout << "1) Display details of a particular game\n";
+//        cout << "2) List games by number of players\n";
+//        cout << "0) Back to Main Menu\n";
+//        cout << "Choose: ";
+//        cin >> choice;
+//
+//        if (choice == 1) {
+//            string id;
+//            cout << "Enter Game ID: ";
+//            cin >> id;
+//            gameDict->displayGameDetails(id);
+//        }
+//        else if (choice == 2) {
+//            int p;
+//            int sortChoice;
+//            string sortType = "none";
+//
+//            cout << "Enter number of players: ";
+//            cin >> p;
+//            cout << "Sort by: 1) Year of Publication  2) Average Rating  3) None: ";
+//            cin >> sortChoice;
+//
+//            if (sortChoice == 1) sortType = "year";
+//            else if (sortChoice == 2) sortType = "rating";
+//
+//            gameDict->displayFilteredGames(p, sortType);
+//        }
+//    }
+//}
 
 int main() {
     GameDictionary lib;
     Booking bookingSystem;
+    ActiveBookingIndex activeIndex;
 
     UserDictionary users;
     Admin admin("A0001", "Admin");
 
     loadGamesFromCSV("games.csv", lib); // Load data from CSV into the dictionary
+
+    PlayHistory plays;
 
     while (true) {
         int roleChoice = -1;
@@ -273,7 +347,7 @@ int main() {
             cin >> memberID;
             cout << memberID;
             if (users.contains(memberID)) {
-                memberMenu(lib,&bookingSystem, memberID);
+                memberMenu(lib,&bookingSystem, memberID, &activeIndex, users,plays);
             }
             else {
                 cout << "Member ID not found.\n";
@@ -282,7 +356,7 @@ int main() {
         }
 
         else if (roleChoice == 3) {
-            viewGamesMenu(&lib);
+            //viewGamesMenu(&lib);
 		}
 
         else if (roleChoice == 0) {

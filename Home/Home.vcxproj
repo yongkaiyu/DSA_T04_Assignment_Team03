@@ -123,19 +123,23 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ActiveBookingIndex.cpp" />
     <ClCompile Include="Admin.cpp" />
     <ClCompile Include="Booking.cpp" />
     <ClCompile Include="Home.cpp" />
     <ClCompile Include="Member.cpp" />
+    <ClCompile Include="PlayHistory.cpp" />
     <ClCompile Include="User.cpp" />
     <ClCompile Include="UserDictionary.cpp" />
     <ClCompile Include="games.cpp" />
     <ClCompile Include="CSVReader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ActiveBookingIndex.h" />
     <ClInclude Include="Admin.h" />
     <ClInclude Include="Booking.h" />
     <ClInclude Include="Member.h" />
+    <ClInclude Include="PlayHistory.h" />
     <ClInclude Include="User.h" />
     <ClInclude Include="UserDictionary.h" />
     <ClInclude Include="games.h" />
