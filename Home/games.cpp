@@ -60,6 +60,53 @@ Game* GameDictionary::searchGame(std::string id) {
 //    }
 //}
 
+bool startsWith(const std::string& s, const std::string& prefix)
+{
+    if (prefix.size() > s.size()) return false;
+    for (size_t i = 0; i < prefix.size(); i++)
+        if (s[i] != prefix[i]) return false;
+    return true;
+}
+
+int GameDictionary::searchByPrefix(const std::string& prefix, Game results[], int max) const
+{
+    int count = 0;
+
+    for (int i = 0; i < TABLE_SIZE && count < max; i++)
+    {
+        Node* cur = table[i];
+        while (cur != nullptr && count < max)
+        {
+            if (startsWith(cur->data.gameName, prefix))
+            {
+                results[count++] = cur->data; // copy Game
+            }
+            cur = cur->next;
+        }
+    }
+    return count;
+}
+
+void GameDictionary::displayGameMatches(const Game games[], int count) const
+{
+    if (count <= 0)
+    {
+        std::cout << "No matching games found.\n";
+        return;
+    }
+
+    std::cout << "\nMatching games:\n";
+    for (int i = 0; i < count; i++)
+    {
+        std::cout << games[i].gameID << " | "
+            << games[i].gameName
+            << " | Available: "
+            << games[i].gameAvailableCopies << "/"
+            << games[i].gameTotalCopies
+            << std::endl;
+    }
+}
+
 void GameDictionary::addOrUpdateGame(Game g) {
     Game* existing = searchByName(g.gameName);
 

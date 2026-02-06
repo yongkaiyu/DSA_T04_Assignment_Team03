@@ -47,6 +47,10 @@ public:
 
     Game* searchGame(std::string id);
 
+    int searchByPrefix(const std::string& prefix, Game results[], int maxResults) const;
+
+    void displayGameMatches(const Game games[], int count) const;
+
     void displayAll(); // part i 
 
     int removeGame(std::string name); //removes one copy of the game from the dictionary or else delete 

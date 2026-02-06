@@ -133,7 +133,23 @@ void memberMenu(GameDictionary& lib,Booking* bookingSystem, string userID, Activ
         cin >> choice;
 
         if (choice == 1) {
-			lib.displayAll();
+            cout << "Enter keyword to search game: ";
+            cin.ignore();
+            string keyword;
+            getline(cin, keyword);
+
+            const int MAX_RESULTS = 50;
+            Game matches[MAX_RESULTS];
+
+            int found = lib.searchByPrefix(keyword, matches, MAX_RESULTS);
+
+            if (found == 0) {
+                cout << "No games found starting with \"" << keyword << "\".\n";
+                continue;
+            }
+
+            lib.displayGameMatches(matches, found);
+
             // borrow game (booking)
 			string gameID;
 			cout << "Enter the game ID to borrow: ";
