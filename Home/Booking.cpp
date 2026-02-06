@@ -1,4 +1,5 @@
 #include "Booking.h"
+#include "Games.h"
 
 Booking::Booking() {
 
@@ -137,6 +138,62 @@ bool Booking::returnGame(string& bookingID) // update booking to mark as returne
 	}
 	return false; // bookingID not found
 }
+
+static char lowerChar(char c)
+{
+	if (c >= 'A' && c <= 'Z') return c - 'A' + 'a';
+	return c;
+}
+
+static bool startsWithIgnoreCase(const std::string& text, const std::string& prefix)
+{
+	if (prefix.size() > text.size()) return false;
+	for (size_t i = 0; i < prefix.size(); i++)
+		if (lowerChar(text[i]) != lowerChar(prefix[i])) return false;
+	return true;
+}
+
+int Booking::collectBookingsByUserKeywordPaged(const string& userID,
+	const string& keyword,
+	const GameDictionary& lib,
+	BookingData results[],
+	int max,
+	int startIndex) const
+{
+	if (max <= 0 || startIndex < 0) return 0;
+
+	int skipped = 0;
+	int count = 0;
+
+	for (int i = 0; i < MAX_SIZE && count < max; i++)
+	{
+		Node* cur = items[i];
+		while (cur != nullptr && count < max)
+		{
+			const BookingData& b = cur->item;
+
+			if (b.userID == userID)
+			{
+				// Lookup game name from gameID
+				const Game* g = lib.searchGame(b.gameID);
+				if (g != nullptr)
+				{
+					// match by prefix on game name (you can swap to ignore-case version)
+					if (startsWithIgnoreCase(g->gameName, keyword))
+					{
+						if (skipped < startIndex) skipped++;
+						else results[count++] = b;
+					}
+				}
+			}
+
+			cur = cur->next;
+		}
+	}
+
+	return count;
+}
+
 
 string Booking::getGameIDByBookingID(string& bookingID) // retrieve gameID by bookingID
 {
