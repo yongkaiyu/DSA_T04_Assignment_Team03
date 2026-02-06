@@ -60,6 +60,64 @@ Game* GameDictionary::searchGame(std::string id) {
 //    }
 //}
 
+static char lowerChar(char c)
+{
+    if (c >= 'A' && c <= 'Z') return c - 'A' + 'a';
+    return c;
+}
+
+static bool startsWithIgnoreCase(const std::string& text, const std::string& prefix)
+{
+    if (prefix.size() > text.size()) return false;
+    for (size_t i = 0; i < prefix.size(); i++)
+        if (lowerChar(text[i]) != lowerChar(prefix[i])) return false;
+    return true;
+}
+
+int GameDictionary::searchByPrefixPaged(const std::string& prefix, Game results[], int max, int startIndex) const
+{
+    if (max <= 0 || startIndex < 0) return 0;
+    if (prefix.empty()) return 0;
+
+    int skipped = 0;
+    int count = 0;
+
+    for (int i = 0; i < TABLE_SIZE && count < max; i++)
+    {
+        Node* cur = table[i];
+        while (cur != nullptr && count < max)
+        {
+            if (startsWithIgnoreCase(cur->data.gameName, prefix))
+            {
+                if (skipped < startIndex) skipped++;
+                else results[count++] = cur->data;
+            }
+            cur = cur->next;
+        }
+    }
+    return count;
+}
+
+void GameDictionary::displayGameMatches(const Game games[], int count) const
+{
+    if (count <= 0)
+    {
+        std::cout << "No matching games found.\n";
+        return;
+    }
+
+    std::cout << "\nMatching games:\n";
+    for (int i = 0; i < count; i++)
+    {
+        std::cout << games[i].gameID << " | "
+            << games[i].gameName
+            << " | Available: "
+            << games[i].gameAvailableCopies << "/"
+            << games[i].gameTotalCopies
+            << std::endl;
+    }
+}
+
 void GameDictionary::addOrUpdateGame(Game g) {
     Game* existing = searchByName(g.gameName);
 

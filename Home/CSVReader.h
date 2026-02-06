@@ -3,5 +3,6 @@
 #include <string>
 #include "Games.h"
 
-// Added 'const' and '&' to match the .cpp file exactly
-void loadGamesFromCSV(const std::string& filename, GameDictionary& dict);
+// This function will handle all the file reading logic
+void loadGamesFromCSV(std::string& filename, GameDictionary& dict);
+
