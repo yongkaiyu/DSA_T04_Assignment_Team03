@@ -14,7 +14,7 @@ struct Game {
     int gameTotalCopies;
     int gameAvailableCopies;
 
-    Review* reviewsHead = nullptr; // Pointer to the list of reviews for this gam
+    //Review* reviewsHead = nullptr; // Pointer to the list of reviews for this gam
 };
 
 /*struct Review {

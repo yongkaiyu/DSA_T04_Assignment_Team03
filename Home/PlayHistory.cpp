@@ -2,11 +2,33 @@
 #include "UserDictionary.h"
 using namespace std;
 
+/*
+    Team 3
+    Team Member who did this feature:
+    Daniel S10258472D
+
+    Feature Highlight:
+    Advanced feature: Records a play of a game (including players and the winner)
+    Data Structures: Linked list of play records; linked list of players per record
+*/
+
+/*
+Initialises PlayHistory
+Creates an empty play history linked list
+Input params: none
+Return value: none
+*/
 PlayHistory::PlayHistory() {
     first = nullptr;
     playCount = 0; // initialises it to empty play history list
 }
 
+/*
+Destroys PlayHistory
+Frees all memory used by the play records linked list and the players linked list inside each record
+Input params: none
+Return value: none
+*/
 PlayHistory::~PlayHistory() {
     PlayRecord* current = first;
     while (current != nullptr) {
@@ -26,7 +48,13 @@ PlayHistory::~PlayHistory() {
     first = nullptr;
 }
 
-// to generate the unique playid
+/*
+to generate the unique playid
+pre: none
+post: generates a unique playID
+input params: none
+return value: string containing the generated ID
+*/
 string PlayHistory::generatePlayID() {
     playCount++;
 
@@ -41,7 +69,13 @@ string PlayHistory::generatePlayID() {
     return string(id);
 }
 
-// checks if userid already exists in linked list, to prevent duplicates
+/*
+checks if userid already exists in linked list, to prevent duplicates
+pre: player list, userID
+post: bool value of whether the player already exists (true for exists, false otherwise)
+input params: player list, userID
+return value: returns true or false on whether the player is in the list
+*/
 bool PlayHistory::playerExistsInList(PlayerNode* list, string userID) {
     PlayerNode* current = list;
     while (current != nullptr) {
@@ -51,7 +85,13 @@ bool PlayHistory::playerExistsInList(PlayerNode* list, string userID) {
     return false;
 }
 
-// records the play of a game of a user
+/*
+Adding a play record using game id, game name, the winner's id. a string to store all the participants
+pre: a player record should exist first
+post: new play added
+input params: gameID, gameName, winnerID (memberID of winner), playerIDs[] (array of member ids involved), playercount, number of players in playerIDs[]
+Return value: returns true is play record is successfully stored, false if input is invalid or winner not in player list
+*/
 bool PlayHistory::addPlay(string gameID, string gameName, string winnerID, string playerIDs[], int playerCount) {
     if (gameID.empty() || winnerID.empty())
     {
@@ -103,7 +143,13 @@ bool PlayHistory::addPlay(string gameID, string gameName, string winnerID, strin
     return true;
 }
 
-// to display the play recorded by user after entering all the information
+/*
+Print all recorded plays
+pre: none
+post: recorded plays are displayed
+input params: users- Reference to UserDictionary for ID
+Return value: none
+*/
 void PlayHistory::printAll(UserDictionary& users) {
     if (first == nullptr) {
         cout << "No play records.\n";
@@ -143,4 +189,87 @@ void PlayHistory::printAll(UserDictionary& users) {
 
         current = current->next;
     }
+}
+
+/*
+Print all recorded plays after sorting them by game name
+pre: none
+post: recorded plays are displayed after sorting
+input params: users- Reference to UserDictionary for ID
+Return value: none
+*/
+void PlayHistory::printSortedByGame(UserDictionary& users) {
+    if (first == nullptr) {
+        cout << "No play records.\n";
+        return;
+    }
+
+    // Counting the records
+    int count = 0;
+    PlayRecord* current = first;
+    while (current != nullptr) {
+        count++;
+        current = current->next;
+    }
+
+    // Copying pointers into an array
+    PlayRecord* records = new PlayRecord[count];
+    current = first;
+    for (int i = 0; i < count; i++) {
+        records[i] = *current;   // copy the play record
+        current = current->next;
+    }
+
+    // Selection sort by gameName (ascending)
+    for (int i = 0; i < count - 1; i++) {
+        int minIndex = i;
+
+        for (int j = i + 1; j < count; j++) {
+            if (records[j].gameName < records[minIndex].gameName) {
+                minIndex = j;
+            }
+        }
+
+        if (minIndex != i) {
+            PlayRecord temp = records[i];
+            records[i] = records[minIndex];
+            records[minIndex] = temp;
+        }
+    }
+
+    // Printing in sorted order
+    for (int i = 0; i < count; i++) {
+        cout << "PlayID: " << records[i].playID << "\n";
+        cout << "Game: " << records[i].gameID
+            << " - " << records[i].gameName << "\n";
+
+        // Winner
+        User* w = users.getUser(records[i].winnerID);
+        if (w != nullptr) {
+            cout << "Winner: " << records[i].winnerID
+                << " (" << w->getUserName() << ")\n";
+        }
+        else {
+            cout << "Winner: " << records[i].winnerID << " (Unknown)\n";
+        }
+
+        // Players
+        cout << "Players: ";
+        PlayerNode* p = records[i].players;
+        while (p != nullptr) {
+            User* u = users.getUser(p->userID);
+            if (u != nullptr) {
+                cout << p->userID << " (" << u->getUserName() << ")";
+            }
+            else {
+                cout << p->userID << " (Unknown)";
+            }
+
+            if (p->next != nullptr) cout << ", ";
+            p = p->next;
+        }
+
+        cout << "\n--------------------------\n";
+    }
+    delete[] records;
 }

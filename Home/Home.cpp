@@ -291,7 +291,7 @@ void memberMenu(GameDictionary& lib,Booking* bookingSystem, string userID, Activ
                 cout << "Play recorded successfully!\n";
                 cout << "\n";
                 cout << "\n---------------------------\n";
-                plays.printAll(users);
+                plays.printSortedByGame(users);
             }
             else cout << "Failed to record play (winner must be among players).\n";
         }
@@ -342,9 +342,9 @@ int main() {
     ActiveBookingIndex activeIndex;
 
     UserDictionary users;
-    Admin admin("A0001", "Admin");
+    Admin admin("A001", "Admin");
 
-    loadGamesFromCSV("games.csv", lib); // Load data from CSV into the dictionary
+    //loadGamesFromCSV("games.csv", lib); // Load data from CSV into the dictionary
 
     PlayHistory plays;
 
@@ -354,7 +354,15 @@ int main() {
         cin >> roleChoice;
         if (roleChoice == 1)
         {
-            adminMenu(admin, users, lib, &bookingSystem);
+            string adminID;
+            cout << "Enter Admin ID: ";
+            cin >> adminID;
+            if (adminID == "A001") {
+                adminMenu(admin, users, lib, &bookingSystem);
+            }
+            else {
+                cout << "Admin ID not found.\n";
+            }
         }
         else if (roleChoice == 2)
         {
@@ -362,7 +370,7 @@ int main() {
             cout << "Enter Member ID: ";
             cin >> memberID;
             cout << memberID;
-            if (users.contains(memberID)) {
+            if (users.contains(memberID)) { // searches whether can find member id as it uses hash-based search 
                 memberMenu(lib,&bookingSystem, memberID, &activeIndex, users,plays);
             }
             else {
