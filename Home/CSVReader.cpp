@@ -79,6 +79,6 @@ void loadGamesFromCSV(const std::string& filename, GameDictionary& dict) {
         }
     }
 
-    //std::cout << "Successfully loaded " << rowCount << " games into the dictionary." << std::endl;
+    std::cout << "Successfully loaded " << rowCount << " games into the dictionary." << std::endl;
     file.close();
 }
