@@ -1,7 +1,99 @@
 #include "UserDictionary.h"
 #include "User.h"
 #include "Member.h"
+#include "Admin.h"
+#include <fstream>
+#include <sstream>
 using namespace std;
+
+static int extractNumberFromID(string id) {
+    // expects format like M001 or A001
+    int num = 0;
+    for (int i = 1; i < (int)id.length(); i++) {
+        char c = id[i];
+        if (c >= '0' && c <= '9') {
+            num = num * 10 + (c - '0');
+        }
+    }
+    return num;
+}
+
+// loads user in csv file to program
+void UserDictionary::loadFromCSV(string filename) {
+    if (filename.empty()) return;
+
+    ifstream file(filename);
+    if (!file.is_open()) {
+        // If file doesn't exist yet, start with empty dictionary
+        return;
+    }
+
+    string line;
+    getline(file, line); // to skip header row: userID,userName,role
+
+    int maxMemberNum = 0; // tracking highest M### so can continue auto IDs
+
+    while (getline(file, line)) {
+        if (line.empty()) continue;
+
+        stringstream ss(line);
+        string id, name, role;
+
+        getline(ss, id, ',');
+        getline(ss, name, ',');
+        getline(ss, role, ',');
+
+        if (id.empty() || name.empty() || role.empty()) continue;
+
+        // Create correct type
+        if (role == "Admin") {
+            Admin* a = new Admin(id, name);
+            addUser(a);
+        }
+        else { // treat anything else as Member
+            Member* m = new Member(id, name);
+            addUser(m);
+
+            // Update max member number (M001, M002...)
+            if (!id.empty() && id[0] == 'M') {
+                int n = extractNumberFromID(id);
+                if (n > maxMemberNum) maxMemberNum = n;
+            }
+        }
+    }
+
+    file.close();
+
+    // making auto-ID continue from the largest loaded member number
+    Admin::setMemberCount(maxMemberNum);
+}
+
+//saves everything to csv after program ends
+void UserDictionary::saveToCSV(string filename) {
+    if (filename.empty()) return;
+
+    ofstream file(filename);
+    if (!file.is_open()) return;
+
+    file << "userID,userName,role\n";
+
+    for (int i = 0; i < TABLE_SIZE; i++) {
+        Node* current = table[i];
+        while (current != nullptr) {
+            User* u = current->user;
+
+            // Convert role enum -> text
+            string roleText = (u->getRole() == User::Role::Admin) ? "Admin" : "Member";
+
+           
+            file << u->getUserID() << "," << u->getUserName() << "," << roleText << "\n";
+
+            current = current->next;
+        }
+    }
+
+    file.close();
+}
 
 // constructor
 UserDictionary::UserDictionary() {

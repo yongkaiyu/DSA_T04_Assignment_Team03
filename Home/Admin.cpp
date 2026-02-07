@@ -67,3 +67,12 @@ bool Admin::addMember(UserDictionary& users, string memberName, string& outMembe
     outMemberID = newID;
     return true;
 }
+
+void Admin::setMemberCount(int count) {
+    if (count < 0) count = 0;
+    memberCount = count;
+}
+
+int Admin::getMemberCount() {
+    return memberCount;
+}

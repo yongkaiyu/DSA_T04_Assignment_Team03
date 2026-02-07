@@ -64,4 +64,22 @@ public:
 	Return: pointer to User if found, nullptr otherwise
 	*/
 	User* getUser(string& userID);
+
+	/*
+	Loads users from a CSV file into the dictionary.
+	Pre: filename must not be empty
+	Post: users in CSV are inserted into the dictionary
+	Params: filename - CSV file name
+	Return: none
+	*/
+	void loadFromCSV(string filename);
+
+	/*
+	Saves all users currently in the dictionary into a CSV file (overwrites file).
+	Pre: filename must not be empty
+	Post: CSV is rebuilt with current dictionary users
+	Params: filename - CSV file name
+	Return: none
+	*/
+	void saveToCSV(string filename);
 };

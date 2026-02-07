@@ -31,4 +31,10 @@ public:
 	return value: returns ok if successfully added
 	*/
 	bool addMember(UserDictionary& user, string memberName, string& outMemberID);
+
+	// Sets the starting value for auto-generated member IDs (e.g. after loading CSV)
+	static void setMemberCount(int count);
+
+	// just for debugging / displaying next ID
+	static int getMemberCount();
 };
