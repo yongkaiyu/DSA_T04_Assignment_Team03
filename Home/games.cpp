@@ -39,27 +39,6 @@ Game* GameDictionary::searchGame(std::string id) {
 }
 
 
-//void GameDictionary::addOrUpdateGame(Game g) {
-//    Game* existing = searchByName(g.gameName);
-//
-//    if (existing) {
-//        // If game exists, just increase the copy counts
-//        existing->gameTotalCopies++;
-//        existing->gameAvailableCopies++;
-//    }
-//    else {
-//        // New game: Generate an ID like G001, G002...
-//        gameCount++;
-//        g.gameID = "G" + std::to_string(gameCount);
-//        g.gameTotalCopies = 1;
-//        g.gameAvailableCopies = 1;
-//
-//        int index = hashFunction(g.gameName);
-//        Node* newNode = new Node{ g.gameName, g, table[index] };
-//        table[index] = newNode;
-//    }
-//}
-
 static char lowerChar(char c)
 {
     if (c >= 'A' && c <= 'Z') return c - 'A' + 'a';
