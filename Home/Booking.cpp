@@ -67,6 +67,8 @@ bool Booking::borrowGame(string& userID, string& gameID, string& bookingID) // a
 	newItem.bookingID = generateAutoID();
 	newItem.userID = userID;
 	newItem.gameID = gameID;
+	newItem.borrowTime = time(nullptr);
+	newItem.returnTime = 0;
 	newItem.bookingIsReturned = false;
 	KeyType newKey = newItem.bookingID;
 
@@ -204,6 +206,17 @@ bool Booking::isUserBookingOwner(string& bookingID, string& userID) // check if 
 	return false;
 }
 
+bool Booking::isBookingOverdue(const BookingData& booking, long currentTime) // check if booking is overdue
+{
+	const long BORROW_DURATION = 30L * 24 * 60 * 60; // one month
+	if (booking.bookingIsReturned || booking.borrowTime <= 0)
+	{
+		return false; // already returned
+	}
+	long dueTime = booking.borrowTime + BORROW_DURATION;
+	return currentTime > dueTime; // overdue if current time is past due time
+}
+
 int Booking::countAllBookings() const // count all bookings
 {
 	int count = 0;
@@ -330,15 +343,49 @@ void Booking::displayAllSortedByGameID()
 	if (count > 1)
 		mergeSortByGameID(arr, temp, 0, count - 1);
 
-	for (int i = 0; i < count; i++)
+	long now = time(nullptr);
+
+	// overall totals
+	int totalAll = 0, returnedAll = 0, activeAll = 0, overdueAll = 0;
+
+	int i = 0;
+	while (i < count)
 	{
-		std::cout << "GameID: " << arr[i].gameID
-			<< " | BookingID: " << arr[i].bookingID
-			<< " | UserID: " << arr[i].userID
-			<< " | Returned: "
-			<< (arr[i].bookingIsReturned ? "Yes" : "No")
+		string currentGame = arr[i].gameID;
+
+		int total = 0, returned = 0, active = 0, overdue = 0;
+
+		// process one group (same gameID)
+		while (i < count && arr[i].gameID == currentGame)
+		{
+			total++;
+			totalAll++;
+
+			if (arr[i].bookingIsReturned) {
+				returned++; returnedAll++;
+			}
+			else {
+				active++; activeAll++;
+				if (isBookingOverdue(arr[i], now)) { overdue++; overdueAll++; }
+			}
+
+			i++;
+		}
+
+		cout << currentGame
+			<< " -> Total: " << total
+			<< " | Active: " << active
+			<< " | Returned: " << returned
+			<< " | Overdue: " << overdue
 			<< "\n";
 	}
+
+	cout << "-------------------------\n";
+	cout << "Overall -> Total: " << totalAll
+		<< " | Active: " << activeAll
+		<< " | Returned: " << returnedAll
+		<< " | Overdue: " << overdueAll
+		<< "\n";
 
 	delete[] temp;
 	delete[] arr;
@@ -419,7 +466,7 @@ void Booking::displaySortedByUserID(const string& userID)
 {
 	int n = countBookingsByUserID(userID);
 
-	if(n <= 0)
+	if (n <= 0)
 	{
 		cout << "No bookings found.\n";
 		return;
@@ -431,34 +478,47 @@ void Booking::displaySortedByUserID(const string& userID)
 	if (count == 0)
 	{
 		cout << "No bookings found.\n";
+		delete[] arr;
 		return;
 	}
 
 	insertionSortByBookingID(arr, count);
 
+	long now = time(nullptr);   // get current time once
 	int returned = 0;
-
-	for(int i = 0; i < count; i++)
-	{
-		if (arr[i].bookingIsReturned) {
-			returned++;
-		}
-	}
+	int overdue = 0;
 
 	cout << "\n=== Your Booking Summary ===\n";
 	for (int i = 0; i < count; i++)
 	{
+		string status;
+
+		if (arr[i].bookingIsReturned)
+		{
+			status = "Returned";
+			returned++;
+		}
+		else if (isBookingOverdue(arr[i], now))
+		{
+			status = "Overdue";
+			overdue++;
+		}
+		else
+		{
+			status = "Active";
+		}
+
 		cout << "Booking ID: " << arr[i].bookingID
 			<< " | Game ID: " << arr[i].gameID
-			<< " | Status: "
-			<< (arr[i].bookingIsReturned ? "Returned" : "Active")
+			<< " | Status: " << status
 			<< endl;
 	}
 
 	cout << "---------------------------\n";
 	cout << "Total bookings: " << count << endl;
 	cout << "Returned bookings: " << returned << endl;
-	cout << "Active bookings: " << count - returned << endl;
+	cout << "Overdue bookings: " << overdue << endl;
+	cout << "Active bookings: " << (count - returned - overdue) << endl;
 
 	delete[] arr;
 }
