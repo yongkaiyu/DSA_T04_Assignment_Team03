@@ -4,79 +4,81 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <vector>
+#include <algorithm> // for std::trim logic
 
-/*void loadGamesFromCSV(std::string filename, GameDictionary& dict) {
-    std::ifstream file(filename);
-    if (!file.is_open()) {
-        std::cerr << "Error: Could not find " << filename << std::endl;
-        return;
-    }
-
-    std::string line;
-    std::getline(file, line); // Skip the header row
-
-    while (std::getline(file, line)) {
-        std::stringstream ss(line);
-        std::string fields[7]; // name, min, max, maxplay, minplay, year, rating
-        std::string cell;
-        int i = 0;
-
-        while (std::getline(ss, cell, ',') && i < 7) {
-            fields[i++] = cell;
-        }
-
-        if (i < 5) continue; // Skip incomplete lines
-
-        Game g;
-        g.gameName = fields[0];
-        g.gameMinPlayer = std::stoi(fields[1]);
-        g.gameMaxPlayer = std::stoi(fields[2]);
-        g.gameMaxPlayTime = std::stoi(fields[3]);
-        g.gameMinPlayTime = std::stoi(fields[4]);
-        g.gameYearPublished = std::stoi(fields[5]);
-
-        g.gameAverageRating = 0.0f; // Initialize to 0 since it's not in the CSV
-
-        // Note: gameID and copy counts are handled inside addOrUpdateGame
-        dict.addOrUpdateGame(g);
-    }
-    file.close();
-}*/
+// Helper function to remove leading/trailing whitespace
+std::string trim(const std::string& s) {
+    size_t first = s.find_first_not_of(" \t\r\n");
+    if (std::string::npos == first) return s;
+    size_t last = s.find_last_not_of(" \t\r\n");
+    return s.substr(first, (last - first + 1));
+}
 
 void loadGamesFromCSV(const std::string& filename, GameDictionary& dict) {
     std::ifstream file(filename);
+
     if (!file.is_open()) {
-        std::cerr << "Error: Could not open " << filename << std::endl;
+        std::cerr << "Error: Could not open file " << filename << std::endl;
         return;
     }
 
     std::string line;
-    std::getline(file, line); // Skip header row
+    // 1. Skip the header row
+    if (!std::getline(file, line)) return;
 
+    int rowCount = 0;
     while (std::getline(file, line)) {
-        std::stringstream ss(line);
-        std::string fields[6];
+        if (line.empty()) continue;
+
+        std::vector<std::string> fields;
         std::string cell;
-        int i = 0;
+        bool inQuotes = false;
 
-        while (std::getline(ss, cell, ',') && i < 6) {
-            fields[i++] = cell;
+        // Manual parse to handle commas inside quotes
+        std::string currentField;
+        for (char c : line) {
+            if (c == '"') {
+                inQuotes = !inQuotes; // Toggle quote state
+            }
+            else if (c == ',' && !inQuotes) {
+                fields.push_back(trim(currentField));
+                currentField.clear();
+            }
+            else {
+                currentField += c;
+            }
         }
+        fields.push_back(trim(currentField)); // Add the last field
 
-        if (i < 6) continue; // Skip incomplete rows
+        if (fields.size() < 6) continue;
 
-        Game g;
-        g.gameName = fields[0];
-        g.gameMinPlayer = std::stoi(fields[1]);
-        g.gameMaxPlayer = std::stoi(fields[2]);
-        g.gameMaxPlayTime = std::stoi(fields[3]);
-        g.gameMinPlayTime = std::stoi(fields[4]);
-        g.gameYearPublished = std::stoi(fields[5]);
-        g.gameAverageRating = 0.0f; // Not in CSV
+        try {
+            Game g;
+            // 3. Map CSV columns to Game struct members
+            g.gameName = fields[0];
+            g.gameMinPlayer = std::stoi(fields[1]);
+            g.gameMaxPlayer = std::stoi(fields[2]);
+            g.gameMaxPlayTime = std::stoi(fields[3]);
+            g.gameMinPlayTime = std::stoi(fields[4]);
+            g.gameYearPublished = std::stoi(fields[5]);
+            g.gameAverageRating = 0.0f; // Default value as it's not in your CSV
 
-        // Let dictionary handle duplicates + ID generation
-        dict.addOrUpdateGame(g);
+            // 4. Add to your Hash Table / Dictionary
+            dict.addOrUpdateGame(g);
+            rowCount++;
+
+        }
+        catch (const std::invalid_argument& e) {
+            // This catches the 'abort()' issue if a cell isn't a number
+            std::cerr << "Row " << rowCount + 2 << " error: '" << fields[0]
+                << "' has non-numeric data." << std::endl;
+        }
+        catch (const std::out_of_range& e) {
+            std::cerr << "Row " << rowCount + 2 << " error: Number too large." << std::endl;
+        }
     }
 
+    std::cout << "Successfully loaded " << rowCount << " games into the dictionary." << std::endl;
     file.close();
 }
