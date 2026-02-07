@@ -349,6 +349,7 @@ void GameDictionary::displayFilteredGames(int p, std::string sortType) {
         std::cout << "ID: " << filteredArray[i].gameID
             << " | Name: " << filteredArray[i].gameName
             << " | Year: " << filteredArray[i].gameYearPublished << std::endl;
+            //<< " | Average Rating: " << filteredArray[i].gameAverageRating << std::endl;
     }
 
     // 6. CRITICAL: Free the manually allocated memory
