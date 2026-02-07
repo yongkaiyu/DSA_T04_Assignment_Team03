@@ -366,7 +366,7 @@ void viewGamesMenu(GameDictionary* gameDict) {
         cout << "1) Display details of a particular game\n";
         cout << "2) List games by number of players\n";
         cout << "0) Back to Main Menu\n";
-        cout << "Choose: \n";
+        cout << "Choose: ";
         cin >> choice;
 
         if (choice == 1) {
