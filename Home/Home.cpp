@@ -402,6 +402,11 @@ int main() {
     users.loadFromCSV("users.csv");
 
     loadGamesFromCSV("games.csv", lib); // Load data from CSV into the dictionary
+
+	loadBookingsFromCSV("bookings.csv", bookingSystem);
+
+	rebuildDerivedData(bookingSystem, activeIndex, lib);
+
     PlayHistory plays;
 
     while (true) {
@@ -456,6 +461,8 @@ int main() {
         }
     }
     users.saveToCSV("users.csv"); // saves created users into csv file
+
+	saveBookingsToCSV("bookings.csv", bookingSystem);
 
 	//loadGamesFromCSV("games.csv", lib); // Load data from CSV into the dictionary
 

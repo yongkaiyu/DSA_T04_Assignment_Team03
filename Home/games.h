@@ -73,6 +73,9 @@ public:
     // Filter and sort logic
     void displayFilteredGames(int p, std::string sortBy);
 
+    void resetAvailableCopiesToTotal();
+
+
     // Adds a review to a specific game
     //bool addReview(std::string gameID, std::string memberID, std::string comment, float rating);
 

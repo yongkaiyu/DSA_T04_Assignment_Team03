@@ -69,7 +69,6 @@ bool Booking::borrowGame(string& userID, string& gameID, string& bookingID) // a
 	newItem.userID = userID;
 	newItem.gameID = gameID;
 	newItem.borrowTime = time(nullptr);
-	newItem.returnTime = 0;
 	newItem.bookingIsReturned = false;
 	KeyType newKey = newItem.bookingID;
 
@@ -563,4 +562,43 @@ void Booking::displaySortedByUserID(const string& userID)
 	cout << "Active bookings: " << (count - returned - overdue) << endl;
 
 	delete[] arr;
+}
+
+bool Booking::insertRecord(const BookingData& data)
+{
+	KeyType key = data.bookingID;
+	int index = hash(key);
+	if (index < 0) return false;
+
+	Node* cur = items[index];
+	while (cur)
+	{
+		if (cur->key == key) return false; // duplicate bookingID
+		cur = cur->next;
+	}
+
+	Node* node = new Node;
+	node->key = key;
+	node->item = data;
+	node->next = items[index];
+	items[index] = node;
+	size++;
+	return true;
+}
+
+void Booking::restoreNextBookingNumber()
+{
+	int maxNum = 0;
+
+	for (int i = 0; i < MAX_SIZE; i++)
+	{
+		Node* cur = items[i];
+		while (cur)
+		{
+			int num = extractBookingNumber(cur->item.bookingID);
+			if (num > maxNum) maxNum = num;
+			cur = cur->next;
+		}
+	}
+	nextBookingNumber = maxNum + 1;
 }
