@@ -126,8 +126,6 @@ void memberMenu(GameDictionary& lib,Booking* bookingSystem, string userID, Activ
         cout << "3) Display summary of games borrowed/returned\n";
 		cout << "4) Rate a board game\n";
         cout << "5) Record a game play\n";
-        cout << "6) View my play history\n";
-        cout << "7) View play history for a game\n";
         cout << "0) Exit\n";
         cout << "Choose: ";
         cin >> choice;
@@ -377,21 +375,21 @@ void viewGamesMenu(GameDictionary* gameDict) {
             cin >> id;
             gameDict->displayGameDetails(id);
         }
-        /*else if (choice == 2) {
+        else if (choice == 2) {
             int p;
             int sortChoice;
             string sortType = "none";
 
             cout << "Enter number of players: ";
             cin >> p;
-            cout << "Sort by: 1) Year of Publication  2) Average Rating  3) None: ";
+            cout << "\nSort by: 1) Year of Publication  2) Average Rating  3) None: \n";
             cin >> sortChoice;
 
             if (sortChoice == 1) sortType = "year";
             else if (sortChoice == 2) sortType = "rating";
 
             gameDict->displayFilteredGames(p, sortType);
-        }*/
+        }
     }
 }
 
@@ -401,22 +399,30 @@ int main() {
     ActiveBookingIndex activeIndex;
 
     UserDictionary users;
-    Admin admin("A001", "Admin");
+    users.loadFromCSV("users.csv");
 
     loadGamesFromCSV("games.csv", lib); // Load data from CSV into the dictionary
     PlayHistory plays;
 
     while (true) {
         int roleChoice = -1;
-        cout << "Select Role:\n1) Admin\n2) Member\n3) View Games Menu\nChoose: ";
+        cout << "Select Role:\n1) Admin\n2) Member\n3) View Games Menu\n0) Exit\nChoose: \n";
         cin >> roleChoice;
         if (roleChoice == 1)
         {
             string adminID;
             cout << "Enter Admin ID: ";
             cin >> adminID;
-            if (adminID == "A001") {
-                adminMenu(admin, users, lib, &bookingSystem);
+            // Look up the ID in dictionary (loaded from users.csv)
+            User* u = users.getUser(adminID);
+
+            // Validate it exists and is actually an admin
+            if (u != nullptr && u->getRole() == User::Role::Admin) {
+
+                // Create an Admin object using the ID + name from CSV
+                Admin loggedInAdmin(u->getUserID(), u->getUserName());
+
+                adminMenu(loggedInAdmin, users, lib, &bookingSystem);
             }
             else {
                 cout << "Admin ID not found.\n";
@@ -449,6 +455,7 @@ int main() {
             cout << "Invalid role selection.\n";
         }
     }
+    users.saveToCSV("users.csv"); // saves created users into csv file
 
 	//loadGamesFromCSV("games.csv", lib); // Load data from CSV into the dictionary
 
