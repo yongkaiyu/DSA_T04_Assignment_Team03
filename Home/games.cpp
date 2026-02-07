@@ -24,18 +24,23 @@ Game* GameDictionary::searchByName(std::string name) {
 
 
 //Search by ID
-Game* GameDictionary::searchGame(std::string id) { 
-    int index = hashFunction(id);
 
-    Node* current = table[index];
-    while (current != nullptr) {
-        // Compare the gameID in the data struct with the search ID
-        if (current->data.gameID == id) {
-            return &(current->data); // Return the address of the game object
+
+Game* GameDictionary::searchGame(std::string id) {
+    // We cannot use hashFunction(id) because the table is indexed by Name.
+    // We must loop through the entire table to find the specific ID.
+    for (int i = 0; i < TABLE_SIZE; i++) {
+        Node* current = table[i];
+
+        while (current != nullptr) {
+            // Check if this node's gameID matches "G001", "G002", etc.
+            if (current->data.gameID == id) {
+                return &(current->data);
+            }
+            current = current->next;
         }
-        current = current->next; // Move to the next node in the chain
     }
-    return nullptr;
+    return nullptr; // If we've checked everything and found nothing
 }
 
 
@@ -97,22 +102,32 @@ void GameDictionary::displayGameMatches(const Game games[], int count) const
     }
 }
 
+#include <sstream> // Required for ostringstream
+
 void GameDictionary::addOrUpdateGame(Game g) {
+    // 1. Check if the game already exists in the dictionary first
     Game* existing = searchByName(g.gameName);
 
     if (existing) {
-        // Game already exists → increase copy counts
+        // Game found -> just update the copies, don't increase gameCount
         existing->gameTotalCopies++;
         existing->gameAvailableCopies++;
         return;
     }
 
-    // New game → generate ID
+    // 2. New game detected -> Increment the counter
     gameCount++;
-    g.gameID = "G" + std::to_string(gameCount);
+
+    // 3. Format the ID with leading zeros (e.g., G001)
+    std::ostringstream oss;
+    oss << "G" << std::setfill('0') << std::setw(3) << gameCount;
+    g.gameID = oss.str();
+
+    // 4. Initialize the new game settings
     g.gameTotalCopies = 1;
     g.gameAvailableCopies = 1;
 
+    // 5. Store in the Hash Table
     int index = hashFunction(g.gameName);
     Node* newNode = new Node{ g.gameName, g, table[index] };
     table[index] = newNode;
