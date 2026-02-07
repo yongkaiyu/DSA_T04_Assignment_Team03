@@ -134,6 +134,27 @@ bool ActiveBookingIndex::hasActive(const string& userID, const string& gameID) c
 	return false;
 }
 
+bool ActiveBookingIndex::hasActiveUser(const string& userID) const { // check if any active booking entry exists for userID
+	if (userID.empty()) return false;
+	for (int i = 0; i < ACTIVE_MAX_SIZE; i++)
+	{
+		ActiveNode* cur = items[i];
+		while (cur != nullptr)
+		{
+			// Extract userID from key
+			size_t delimiterPos = cur->key.find('|');
+			if (delimiterPos != string::npos)
+			{
+				string keyUserID = cur->key.substr(0, delimiterPos);
+				if (keyUserID == userID)
+					return true;
+			}
+			cur = cur->next;
+		}
+	}
+	return false;
+}
+
 // Retrieve bookingID for an active (userID, gameID)
 // Returns "" if not found
 string ActiveBookingIndex::getBookingID(const string& userID, const string& gameID) const

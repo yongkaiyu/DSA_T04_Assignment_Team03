@@ -44,36 +44,49 @@ public:
 	// hash function to map keys to table indices
 	// pre : none
 	// post: none
+	// input params: key - the key to be hashed
 	// return the hash index for the given key
     int hash(KeyType key) const;
 
 	// create a composite key from userID and gameID
 	// pre : none
 	// post: none
+	// input params: userID - ID of the user, gameID - ID of the game
 	// return the composite key
     string makeKey(const string& userID, const string& gameID) const;
 
 	// add a new active booking entry
 	// pre : none
 	// post: new active booking entry is added
+	// input params: userID - ID of the user, gameID - ID of the game, bookingID - ID of the booking
 	// return true if added successfully; false if already exists
     bool addActive(const string& userID, const string& gameID, const string& bookingID);
 
 	// remove an active booking entry
 	// pre : none
 	// post: active booking entry is removed
+	// input params: userID - ID of the user, gameID - ID of the game
 	// return true if removed successfully; false if not found
     bool removeActive(const string& userID, const string& gameID);
 
 	// check if an active booking entry exists
 	// pre : none
 	// post: none
+	// input params: userID - ID of the user, gameID - ID of the game
 	// return true if exists; false otherwise
     bool hasActive(const string& userID, const string& gameID) const;
+
+	// check if any active booking entry exists for a specific userID
+	// pre : none
+	// post: none
+	// input params: userID - ID of the user
+	// return true if exists; false otherwise
+	bool hasActiveUser(const string& userID) const;
 
 	// retrieve bookingID for an active booking entry
 	// pre : none
 	// post: none
+	// input params: userID - ID of the user, gameID - ID of the game
 	// return bookingID if found; empty string otherwise
     string getBookingID(const string& userID, const string& gameID) const;
 };
