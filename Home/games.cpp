@@ -354,6 +354,15 @@ void GameDictionary::displayFilteredGames(int p, std::string sortType) {
     delete[] filteredArray;
 }
 
+void GameDictionary::resetAvailableCopiesToTotal() {
+    for (int i = 0; i < TABLE_SIZE; i++) {
+        Node* current = table[i];
+        while (current) {
+            current->data.gameAvailableCopies = current->data.gameTotalCopies;
+            current = current->next;
+        }
+    }
+}
 
 GameDictionary::~GameDictionary() {
     for (int i = 0; i < TABLE_SIZE; i++) {

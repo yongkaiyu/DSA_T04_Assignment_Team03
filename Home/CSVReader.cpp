@@ -82,3 +82,90 @@ void loadGamesFromCSV(const std::string& filename, GameDictionary& dict) {
     std::cout << "Successfully loaded " << rowCount << " games into the dictionary." << std::endl;
     file.close();
 }
+
+bool loadBookingsFromCSV(const std::string& filename, Booking& booking) {
+    std::ifstream fin(filename);
+    if (!fin) return false;
+
+    std::string line;
+    std::getline(fin, line); // header
+
+    while (std::getline(fin, line))
+    {
+        if (line.empty()) continue;
+
+        BookingData b;
+        std::stringstream ss(line);
+        std::string token;
+
+        std::getline(ss, b.bookingID, ',');
+        std::getline(ss, b.userID, ',');
+        std::getline(ss, b.gameID, ',');
+
+        std::getline(ss, token, ',');
+        b.borrowTime = std::stol(token);
+
+        std::getline(ss, token, ',');
+        b.bookingIsReturned = (token == "1");
+
+        booking.insertRecord(b); // <-- Booking doesn't care it's from CSV
+    }
+
+    booking.restoreNextBookingNumber();
+    return true;
+}
+
+bool saveBookingsToCSV(const std::string& filename, Booking& booking)
+{
+    std::ofstream file(filename);
+    if (!file) return false;
+
+    file << "bookingID,userID,gameID,borrowTime,bookingIsReturned\n";
+    
+    int n = booking.countAllBookings();
+
+	BookingData* arr = new BookingData[n];
+
+	int collected = booking.collectAllBookings(arr, n);
+
+    for (int i = 0; i < collected; i++)
+    {
+		file << arr[i].bookingID << ","
+             << arr[i].userID << ","
+             << arr[i].gameID << ","
+             << arr[i].borrowTime << ","
+			 << (arr[i].bookingIsReturned ? "1" : "0") 
+             << "\n";
+	}
+    return true;
+}
+
+void rebuildDerivedData(Booking& booking, ActiveBookingIndex& activeIndex, GameDictionary& lib)
+{
+    // 1) reset available copies back to total copies
+    lib.resetAvailableCopiesToTotal();
+
+    // 2) collect all bookings
+	int n = booking.countAllBookings();
+
+    BookingData* arr = new BookingData[n];
+
+    int count = booking.collectAllBookings(arr, n);
+
+    // 3) apply active bookings to rebuild derived state
+    for (int i = 0; i < count; i++)
+    {
+        if (!arr[i].bookingIsReturned)
+        {
+            // reduce availability
+            lib.borrowGameUpdateTotalCopies(arr[i].gameID);
+
+            // rebuild active index
+            activeIndex.addActive(arr[i].userID,
+                arr[i].gameID,
+                arr[i].bookingID);
+        }
+    }
+
+    delete[] arr;
+}

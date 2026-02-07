@@ -15,9 +15,7 @@ struct BookingData
 	string bookingID;
 	string userID;
 	string gameID;
-
 	long borrowTime;   // time when borrowed
-	long returnTime;   // 0 if not returned yet
 
 	bool bookingIsReturned;
 };
@@ -177,5 +175,18 @@ public:
 	// return: none
 	void displaySortedByUserID(const string& userID);
 
+	// insert a booking record (used for loading from CSV)
+	// pre : none
+	// post: booking record is inserted into the Booking
+	// input params: data - BookingData to be inserted
+	// return true if inserted successfully; otherwise returns false
+	bool insertRecord(const BookingData& data);
+
+	// restore the next booking number based on existing bookings (used for loading from CSV)
+	// pre : none
+	// post: nextBookingNumber is updated to ensure unique booking IDs
+	// input params: none
+	// return: none
+	void restoreNextBookingNumber();
 };
 
