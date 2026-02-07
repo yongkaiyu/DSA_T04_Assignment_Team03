@@ -23,18 +23,16 @@ Game* GameDictionary::searchByName(std::string name) {
 }
 
 
-//Search by ID
-
-
-Game* GameDictionary::searchGame(std::string id) {
-    // We cannot use hashFunction(id) because the table is indexed by Name.
-    // We must loop through the entire table to find the specific ID.
-    for (int i = 0; i < TABLE_SIZE; i++) {
+//Search Game by ID
+Game* GameDictionary::searchGame(std::string id) const
+{
+    for (int i = 0; i < TABLE_SIZE; i++)
+    {
         Node* current = table[i];
-
-        while (current != nullptr) {
-            // Check if this node's gameID matches "G001", "G002", etc.
-            if (current->data.gameID == id) {
+        while (current != nullptr)
+        {
+            if (current->data.gameID == id)
+            {
                 return &(current->data);
             }
             current = current->next;
