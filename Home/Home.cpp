@@ -411,7 +411,7 @@ void viewGamesMenu(GameDictionary* gameDict) {
             cin >> id;
             gameDict->displayGameDetails(id);
         }
-        /*else if (choice == 2) {
+        else if (choice == 2) {
             int p;
             int sortChoice;
             string sortType = "none";
@@ -425,7 +425,7 @@ void viewGamesMenu(GameDictionary* gameDict) {
             else if (sortChoice == 2) sortType = "rating";
 
             gameDict->displayFilteredGames(p, sortType);
-        }*/
+        }
     }
 }
 
