@@ -91,17 +91,12 @@ public:
 	// size of Booking is the same
 	bool returnGame(string& bookingID);
 
-	// count bookings by a specific user ID and keyword in game name
+	// display all active bookings by a specific user ID (Member Function)
 	// pre : none
-	// post: none
-	// input params: userID - ID of the user, keyword - keyword to search in game names, lib - reference to the GameDictionary
-	// return the number of bookings made by the specified user ID with game names containing the keyword
-	int collectBookingsByUserKeywordPaged(const string& userID,
-		const string& keyword,
-		const GameDictionary& lib,
-		BookingData results[],
-		int max,
-		int startIndex) const;
+	// post: active bookings are displayed
+	// input params: userID - ID of the user, lib - reference to the GameDictionary for game name lookup
+	// return: none
+	void displayActiveBookingsByUserID(const string& userID, const GameDictionary& lib) const;
 
 	// get the game ID associated with a booking ID
 	// pre : bookingID must exist in the Booking
@@ -136,7 +131,7 @@ public:
 	// post: none
 	// input params: booking - the booking to be checked, currentTime - the current time in seconds since epoch
 	// return true if the booking is overdue; otherwise returns false
-	bool isBookingOverdue(const BookingData& booking, long currentTime);
+	bool isBookingOverdue(const BookingData& booking, long currentTime) const;
 
 	// Algorithm functions
 

@@ -38,7 +38,7 @@ Game* GameDictionary::searchGame(std::string id) const
             current = current->next;
         }
     }
-    return nullptr;
+    return nullptr; // If we've checked everything and found nothing
 }
 
 
@@ -100,22 +100,32 @@ void GameDictionary::displayGameMatches(const Game games[], int count) const
     }
 }
 
+#include <sstream> // Required for ostringstream
+
 void GameDictionary::addOrUpdateGame(Game g) {
+    // 1. Check if the game already exists in the dictionary first
     Game* existing = searchByName(g.gameName);
 
     if (existing) {
-        // Game already exists → increase copy counts
+        // Game found -> just update the copies, don't increase gameCount
         existing->gameTotalCopies++;
         existing->gameAvailableCopies++;
         return;
     }
 
-    // New game → generate ID
+    // 2. New game detected -> Increment the counter
     gameCount++;
-    g.gameID = "G" + std::to_string(gameCount);
+
+    // 3. Format the ID with leading zeros (e.g., G001)
+    std::ostringstream oss;
+    oss << "G" << std::setfill('0') << std::setw(3) << gameCount;
+    g.gameID = oss.str();
+
+    // 4. Initialize the new game settings
     g.gameTotalCopies = 1;
     g.gameAvailableCopies = 1;
 
+    // 5. Store in the Hash Table
     int index = hashFunction(g.gameName);
     Node* newNode = new Node{ g.gameName, g, table[index] };
     table[index] = newNode;
@@ -274,6 +284,74 @@ void GameDictionary::displayGameDetails(std::string id) { //Displays a particula
     else {
         std::cout << "Game with ID " << id << " not found." << std::endl;
     }
+}
+
+void GameDictionary::displayFilteredGames(int p, std::string sortType) {
+    // 1. First, we need to count how many games match to allocate our array
+    int matchCount = 0;
+    for (int i = 0; i < TABLE_SIZE; i++) {
+        Node* current = table[i];
+        while (current != nullptr) {
+            if (p >= current->data.gameMinPlayer && p <= current->data.gameMaxPlayer) {
+                matchCount++;
+            }
+            current = current->next;
+        }
+    }
+
+    if (matchCount == 0) {
+        std::cout << "\nNo games found for " << p << " players.\n";
+        return;
+    }
+
+    // 2. Create a dynamic array of Game objects
+    Game* filteredArray = new Game[matchCount];
+    int index = 0;
+
+    // 3. Fill the array with the matching games
+    for (int i = 0; i < TABLE_SIZE; i++) {
+        Node* current = table[i];
+        while (current != nullptr) {
+            if (p >= current->data.gameMinPlayer && p <= current->data.gameMaxPlayer) {
+                filteredArray[index++] = current->data;
+            }
+            current = current->next;
+        }
+    }
+
+    // 4. Manual Bubble Sort based on user choice
+    for (int i = 0; i < matchCount - 1; i++) {
+        for (int j = 0; j < matchCount - i - 1; j++) {
+            bool swapNeeded = false;
+
+            if (sortType == "year") {
+                if (filteredArray[j].gameYearPublished > filteredArray[j + 1].gameYearPublished)
+                    swapNeeded = true;
+            }
+            else if (sortType == "rating") {
+                if (filteredArray[j].gameAverageRating < filteredArray[j + 1].gameAverageRating)
+                    swapNeeded = true;
+            }
+
+            if (swapNeeded) {
+                Game temp = filteredArray[j];
+                filteredArray[j] = filteredArray[j + 1];
+                filteredArray[j + 1] = temp;
+            }
+        }
+    }
+
+    // 5. Display the results
+    std::cout << "\n--- Sorted Results (" << sortType << ") ---\n";
+    for (int i = 0; i < matchCount; i++) {
+        std::cout << "ID: " << filteredArray[i].gameID
+            << " | Name: " << filteredArray[i].gameName
+            << " | Year: " << filteredArray[i].gameYearPublished << std::endl;
+            //<< " | Average Rating: " << filteredArray[i].gameAverageRating << std::endl;
+    }
+
+    // 6. CRITICAL: Free the manually allocated memory
+    delete[] filteredArray;
 }
 
 
